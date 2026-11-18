@@ -1,7 +1,7 @@
 // Tests for check.mjs's spec parsing and value comparison (no browser needed): node --test tests/
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseSpec, parseProps, compareProps, hexToRgba, unmangle, MARKS } from '../skills/figma-to-wordpress/scripts/check.mjs';
+import { parseSpec, parseProps, compareProps, compareRows, hexToRgba, unmangle, MARKS } from '../skills/figma-to-wordpress/scripts/check.mjs';
 
 const SPEC = `# home / hero
 - box@1440: w=1440 h=760
@@ -54,6 +54,12 @@ test('compareProps for images, visibility and focus', () => {
   const got = { w: 344.5, h: 257, fit: 'cover', pos: '50% 0%', visible: true, focusring: true };
   assert.deepEqual(compareProps(want, got, MARKS, 2), []);
   assert.equal(compareProps(want, { ...got, w: 346, fit: 'fill', visible: false }, MARKS, 2).length, 3);
+});
+
+test('compareRows gives one shared-shape row per prop, pass or fail', () => {
+  const rows = compareRows({ size: '40', color: '#fff' }, { size: 44, color: [255, 255, 255, 1] }, MARKS, 1);
+  assert.deepEqual(rows.map((r) => [r.prop, r.ref, r.pass]), [['size', 40, false], ['color', '#fff', true]]);
+  assert.equal(rows[0].got, 44);
 });
 
 test('unmangle undoes the Git Bash path rewrite', () => {

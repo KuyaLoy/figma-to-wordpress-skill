@@ -134,15 +134,17 @@ const normPos = (s) => {
 };
 const squash = (s) => String(s).toLowerCase().replace(/["'_\-\s]/g, '');
 
-// Compares one element's measured values with the spec's. Returns a list of differences ("" when it passes).
-export function compareProps(want, got, marks, boxTol) {
-  const out = [];
+// Compares one element's measured values with the spec's: one row per prop in the spec,
+// { prop, ref, got, pass, text } where text describes a failure.
+export function compareRows(want, got, marks, boxTol) {
+  const rows = [];
+  const row = (prop, ref, g, pass, text) => rows.push({ prop, ref, got: g ?? null, pass, text: pass ? '' : text });
   const num = (k, tol, unit = 'px') => {
     if (want[k] === undefined) return;
     const w = parseFloat(want[k]);
     const g = got[k];
-    if (g === null || g === undefined || Number.isNaN(g)) out.push(`${k} ${got[k]} (Figma ${w})`);
-    else if (Math.abs(g - w) > tol + 1e-9) out.push(`${k} ${Math.round(g * 100) / 100}${unit} (Figma ${w}${unit})`);
+    if (g === null || g === undefined || Number.isNaN(g)) row(k, w, g, false, `${k} ${got[k]} (Figma ${w})`);
+    else row(k, w, Math.round(g * 100) / 100, Math.abs(g - w) <= tol + 1e-9, `${k} ${Math.round(g * 100) / 100}${unit} (Figma ${w}${unit})`);
   };
   num('size', marks.size);
   num('line', marks.line);
@@ -151,22 +153,27 @@ export function compareProps(want, got, marks, boxTol) {
   num('h', boxTol);
   num('radius', marks.radius);
   num('opacity', marks.opacity, '');
-  if (want.weight !== undefined && Number(got.weight) !== Number(want.weight)) out.push(`weight ${got.weight} (Figma ${want.weight})`);
-  if (want.font !== undefined && !squash(got.font).includes(squash(want.font))) out.push(`font ${got.font} (Figma ${want.font})`);
+  if (want.weight !== undefined) row('weight', Number(want.weight), got.weight, Number(got.weight) === Number(want.weight), `weight ${got.weight} (Figma ${want.weight})`);
+  if (want.font !== undefined) row('font', want.font, got.font, squash(got.font).includes(squash(want.font)), `font ${got.font} (Figma ${want.font})`);
   for (const k of ['color', 'bg']) {
     if (want[k] === undefined) continue;
     const w = hexToRgba(want[k]);
     const g = got[k];
-    if (!w) { out.push(`${k}: bad value in spec "${want[k]}"`); continue; }
-    if (!g || w.slice(0, 3).some((c, i) => Math.abs(c - g[i]) > marks.color) || Math.abs(w[3] - g[3]) > 0.02) {
-      out.push(`${k} ${g ? `rgba(${g.join(',')})` : 'none'} (Figma ${want[k]})`);
-    }
+    if (!w) { row(k, want[k], null, false, `${k}: bad value in spec "${want[k]}"`); continue; }
+    const pass = !!g && !w.slice(0, 3).some((c, i) => Math.abs(c - g[i]) > marks.color) && Math.abs(w[3] - g[3]) <= 0.02;
+    const shown = g ? `rgba(${g.join(',')})` : 'none';
+    row(k, want[k], shown, pass, `${k} ${shown} (Figma ${want[k]})`);
   }
-  if (want.fit !== undefined && got.fit !== want.fit) out.push(`object-fit ${got.fit} (Figma ${want.fit})`);
-  if (want.pos !== undefined && normPos(got.pos) !== normPos(want.pos)) out.push(`object-position ${got.pos} (Figma ${want.pos})`);
-  if (want.visible !== undefined && Number(want.visible) !== (got.visible ? 1 : 0)) out.push(`visible ${got.visible ? 1 : 0} (want ${want.visible})`);
-  if (want.focusring !== undefined && Number(want.focusring) !== (got.focusring ? 1 : 0)) out.push(`focus ring ${got.focusring ? 1 : 0} (want ${want.focusring})`);
-  return out;
+  if (want.fit !== undefined) row('fit', want.fit, got.fit, got.fit === want.fit, `object-fit ${got.fit} (Figma ${want.fit})`);
+  if (want.pos !== undefined) row('pos', want.pos, got.pos, normPos(got.pos) === normPos(want.pos), `object-position ${got.pos} (Figma ${want.pos})`);
+  if (want.visible !== undefined) row('visible', Number(want.visible), got.visible ? 1 : 0, Number(want.visible) === (got.visible ? 1 : 0), `visible ${got.visible ? 1 : 0} (want ${want.visible})`);
+  if (want.focusring !== undefined) row('focusring', Number(want.focusring), got.focusring ? 1 : 0, Number(want.focusring) === (got.focusring ? 1 : 0), `focus ring ${got.focusring ? 1 : 0} (want ${want.focusring})`);
+  return rows;
+}
+
+// The failures only, as text ("" list when it passes).
+export function compareProps(want, got, marks, boxTol) {
+  return compareRows(want, got, marks, boxTol).filter((r) => !r.pass).map((r) => r.text);
 }
 
 function targets(a) {
@@ -362,6 +369,9 @@ async function main() {
   let issues = 0;
   let pixelRuns = 0;
   const lines = [];
+  // The shared row shape (also written by convert-to-wordpress's design-check): one QA reader reads both.
+  const rows = [];
+  const label = (tg) => tg.css || `"${tg.text}"`;
   for (const t of list) {
     const url = new URL(t.route, a.base).href;
     const rr = { route: t.route, page: t.page, widths: {} };
@@ -375,6 +385,9 @@ async function main() {
       page.on('pageerror', (e) => errors.push(String(e.message).slice(0, 160)));
       const found = [];
       const pixel = {};
+      let nPage = -1;
+      const row = (check, selector, state, prop, ref, got, pass, image = null) => rows.push({ check, route: t.route,
+        width: w, selector, state, prop, ref, got, pass, image });
       let res = null;
       try {
         res = await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
@@ -399,6 +412,7 @@ async function main() {
           }
           for (const e of errors) found.push(`console: ${e}`);
           if (a.section && !Object.keys(r.sections).length) found.push(`no element with data-section="${a.section}"`);
+          nPage = found.length;
           const tl = tol[w] ?? 1;
           const withStates = [];
           for (const [slug, box] of Object.entries(r.sections)) {
@@ -408,13 +422,18 @@ async function main() {
             if (want) {
               const dh = Math.round((box.h - want.h) * 10) / 10;
               const dw = Math.round((box.w - want.w) * 10) / 10;
-              if (Math.abs(dh) > tl || Math.abs(dw) > tl) {
+              const ok = Math.abs(dh) <= tl && Math.abs(dw) <= tl;
+              row('box', `[data-section="${slug}"]`, null, 'box', `${want.w}x${want.h}`, `${box.w}x${box.h}`, ok);
+              if (!ok) {
                 found.push(`section ${slug}: ${box.w}x${box.h}, Figma ${want.w}x${want.h} (dw ${dw}, dh ${dh}, tol ${tl})`);
               }
             }
             for (const el of spec.el[w] || []) {
               const got = await page.evaluate(measure, { section: slug, target: el.target, mark: '' });
-              const diffs = got.error ? [got.error] : compareProps(el.props, got, marks, tl);
+              const cmp = got.error ? [] : compareRows(el.props, got, marks, tl);
+              if (got.error) row('el', label(el.target), null, 'found', 'element', got.error, false);
+              for (const c of cmp) row('el', label(el.target), null, c.prop, c.ref, c.got, c.pass);
+              const diffs = got.error ? [got.error] : cmp.filter((c) => !c.pass).map((c) => c.text);
               if (diffs.length) found.push(`el ${slug} ${el.target.css || `"${el.target.text}"`}: ${diffs.join(', ')}`);
             }
             if (a.states && (spec.state[w] || []).length) withStates.push(slug);
@@ -422,7 +441,10 @@ async function main() {
           if (pix || pixMissing) {
             const refs = Object.keys(r.sections).map((slug) => [slug, path.join(figDir, `${t.page}--${slug}@${w}.png`)])
               .filter(([, f]) => t.page && fs.existsSync(f));
-            if (refs.length && pixMissing) found.push('pixel diff not run: npm i -D pixelmatch pngjs');
+            if (refs.length && pixMissing) {
+              found.push('pixel diff not run: npm i -D pixelmatch pngjs');
+              row('pixel', null, null, 'diff', a.maxDiff, 'not run: pixelmatch or pngjs missing', false);
+            }
             if (refs.length && pix) {
               await stabilise(page);
               for (const [slug, ref] of refs) {
@@ -430,9 +452,11 @@ async function main() {
                 const shot = await page.locator(`[data-section="${slug}"]`).first().screenshot({ scale: 'css', type: 'png' });
                 const d = pixelDiff(pix, ref, shot);
                 pixel[slug] = Math.round(d.share * 10000) / 100;
+                const base = path.join(diffDir, `${t.page}--${slug}@${w}`);
+                row('pixel', `[data-section="${slug}"]`, null, 'diff', a.maxDiff, Math.round(d.share * 10000) / 10000,
+                  d.share <= a.maxDiff, d.share > a.maxDiff ? `${base}-diff.png` : null);
                 if (d.share > a.maxDiff) {
                   fs.mkdirSync(diffDir, { recursive: true });
-                  const base = path.join(diffDir, `${t.page}--${slug}@${w}`);
                   fs.writeFileSync(`${base}-diff.png`, d.png);
                   fs.writeFileSync(`${base}-site.png`, shot);
                   found.push(`pixel ${slug}: ${(d.share * 100).toFixed(2)}% differs (max ${(a.maxDiff * 100).toFixed(2)}%), Figma ${d.figma}, site ${d.site}, diff ${base}-diff.png`);
@@ -444,7 +468,11 @@ async function main() {
             for (const st of specFor(t.page, slug).state[w]) {
               await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
               const on = await page.evaluate(measure, { section: slug, target: st.on, mark: 'on' });
-              if (on.error) { found.push(`state ${slug} ${st.action}: ${on.error}`); continue; }
+              if (on.error) {
+                found.push(`state ${slug} ${st.action}: ${on.error}`);
+                row('state', label(st.on), st.action, 'found', 'element', on.error, false);
+                continue;
+              }
               const loc = page.locator('[data-qa-target="on"]').first();
               try {
                 if (st.action === 'hover') await loc.hover();
@@ -458,10 +486,18 @@ async function main() {
                   await page.mouse.move(b.x + b.width * 0.2, y, { steps: 10 });
                   await page.mouse.up();
                 }
-              } catch (e) { found.push(`state ${slug} ${st.action}: ${e.message.split('\n')[0]}`); continue; }
+              } catch (e) {
+                found.push(`state ${slug} ${st.action}: ${e.message.split('\n')[0]}`);
+                row('state', label(st.on), st.action, 'action', st.action, e.message.split('\n')[0], false);
+                continue;
+              }
               await page.waitForTimeout(a.settle);
               const got = await page.evaluate(measure, { section: slug, target: st.check, mark: '' });
-              const diffs = got.error ? [got.error] : compareProps(st.props, got, marks, tl);
+              const sel = st.check === st.on || label(st.check) === label(st.on) ? label(st.on) : `${label(st.on)} => ${label(st.check)}`;
+              const cmp = got.error ? [] : compareRows(st.props, got, marks, tl);
+              if (got.error) row('state', sel, st.action, 'found', 'element', got.error, false);
+              for (const c of cmp) row('state', sel, st.action, c.prop, c.ref, c.got, c.pass);
+              const diffs = got.error ? [got.error] : cmp.filter((c) => !c.pass).map((c) => c.text);
               if (diffs.length) found.push(`state ${slug} ${st.action} ${st.on.css || `"${st.on.text}"`}: ${diffs.join(', ')}`);
             }
           }
@@ -476,6 +512,7 @@ async function main() {
           }
         }
       }
+      for (const text of found.slice(0, nPage < 0 ? found.length : nPage)) row('page', null, null, text.split(':')[0], null, text, false);
       rr.widths[w] = { designed, issues: found, pixel };
       issues += found.length;
       if (found.length) lines.push(`${t.route} @${w}: ${found.length} issue(s): ${found.slice(0, 4).join(' | ')}${found.length > 4 ? ' | ...' : ''}`);
@@ -487,6 +524,9 @@ async function main() {
   const stamp = result.at.replace(/[:.]/g, '-').slice(0, 19);
   const file = path.join(a.out, `check-${stamp}.json`);
   fs.writeFileSync(file, JSON.stringify(result, null, 1));
+  const fails = rows.filter((x) => !x.pass).length;
+  fs.writeFileSync(path.join(a.out, 'design-check.json'), JSON.stringify({ tool: 'figma-check', version: 1, base: a.base,
+    at: result.at, rows, summary: { pass: rows.length - fails, fail: fails } }, null, 1));
   console.log(`${issues ? 'ISSUES' : 'PASS'}: ${list.length} route(s), widths ${widths.join('/')} + sweep ${sweep.join('/') || 'none'}, ${pixelRuns} pixel diff(s), ${issues} issue(s). Full: ${file}`);
   for (const l of lines.slice(0, 30)) console.log(`- ${l}`);
   if (lines.length > 30) console.log(`- ... ${lines.length - 30} more lines in the file`);

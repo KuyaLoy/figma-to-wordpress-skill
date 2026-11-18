@@ -29,6 +29,11 @@ At the sweep widths (default 320, 768, 1024, 1280, 1920, `--sweep`): overflow an
 Full JSON in `_figma/qa/check-<time>.json`, full-page shots in `_figma/qa/shots/`; the screen shows one summary
 line and at most 30 issue lines. Exit 0 = no issues, 1 = issues, 2 = the check could not run.
 
+`_figma/qa/design-check.json` (the latest run) holds every measured value in the row shape convert-to-wordpress's
+`design-check` writes too, so one reader handles both: `{"tool": "figma-check", "version": 1, "rows": [{"check":
+"box|pixel|el|state|page", "route", "width", "selector", "state", "prop", "ref", "got", "pass", "image"}],
+"summary": {"pass": n, "fail": n}}`. `ref` is Figma's value, `image` a diff image for failing pixel rows only.
+
 Needs, in the theme or the Next.js app: `npm i -D playwright pixelmatch pngjs` and `npx playwright install
 chromium` (it falls back to the installed Chrome). In Git Bash a route like `/about/` is fine.
 
@@ -84,12 +89,13 @@ The report lists the marks used. A mark changed for a project is a decision, wit
 
 ## 5. Long content (phases 2 and full QA)
 
-A test page shows the design still holds after the client edits. WordPress: a page `qa-long-content`, title
-starting `[QA-LONG]`, with every layout and every field filled long (headings and buttons about three times the
-Figma copy, one 30-character word, paragraphs four times, repeaters at twice the rows, an image of the wrong
-ratio). Next.js: a route `/qa-long-content` built from a long copy of the content file. Run the check on it at the
-designed and sweep widths; its findings are overflow, clipped text and broken layout (it has no Figma render). It
-is removed before live (by its ID; the `[QA-LONG]` marker finds it).
+A test page shows the design still holds after the client edits. WordPress: the convert-to-wordpress kit makes
+it (its `scripts/parity/design-check.mjs --long`, from its 0.9; an older kit: by hand as follows): a page
+`qa-long-content`, title starting `[QA-LONG]`, with every layout and every field filled long (headings and
+buttons about three times the Figma copy, one 30-character word, paragraphs four times, repeaters at twice the
+rows, an image of the wrong ratio). Next.js: a route `/qa-long-content` built from a long copy of the content
+file. Run the check on it at the designed and sweep widths; its findings are overflow, clipped text and broken
+layout (it has no Figma render). It is removed before live (by its ID; the `[QA-LONG]` marker finds it).
 
 ## 6. The read-only check (every phase)
 

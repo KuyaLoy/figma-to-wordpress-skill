@@ -25,6 +25,9 @@ Closer to the design, checked by numbers; fewer publishes; usable from other AI 
   `--marks`, `--settle`, `--no-pixel`, `--no-states`.
 - Long content: a `qa-long-content` test page (`[QA-LONG]` marker) with every field filled long, checked in phase 2
   and full QA, removed before live.
+- `_figma/qa/design-check.json`: every measured value as a row (`check`, `route`, `width`, `selector`, `state`,
+  `prop`, `ref`, `got`, `pass`, `image`) with a pass and fail summary, the same shape convert-to-wordpress 0.9's
+  `design-check` writes, so one QA reader handles both. On WordPress the long content page comes from that kit.
 - `tests/check.test.mjs` (spec parsing and comparisons), run by the `check` workflow.
 
 ### Changed
