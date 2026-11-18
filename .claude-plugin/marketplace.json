@@ -1,0 +1,13 @@
+{
+  "name": "figma-to-wordpress",
+  "owner": { "name": "KuyaLoy", "url": "https://github.com/KuyaLoy" },
+  "description": "The figma-to-wordpress plugin: build a Figma design 1:1 as a WordPress or Next.js site in one chat.",
+  "plugins": [
+    {
+      "name": "figma-to-wordpress",
+      "source": "./",
+      "description": "Figma design to a 1:1 WordPress (ACF PRO, CF7) or Next.js site, phase by phase with a QA loop.",
+      "category": "development"
+    }
+  ]
+}

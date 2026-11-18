@@ -1,0 +1,13 @@
+# Private, per machine or per project: never committed
+/handoff.md
+/ai-handoff-summary.md
+/tasks/
+.claude/settings.local.json
+
+# Generated
+__pycache__/
+node_modules/
+_backups/
+*.zip
+.DS_Store
+Thumbs.db
