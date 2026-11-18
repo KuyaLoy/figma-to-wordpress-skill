@@ -89,13 +89,21 @@ The report lists the marks used. A mark changed for a project is a decision, wit
 
 ## 5. Long content (phases 2 and full QA)
 
-A test page shows the design still holds after the client edits. WordPress: the convert-to-wordpress kit makes
-it (its `scripts/parity/design-check.mjs --long`, from its 0.9; an older kit: by hand as follows): a page
-`qa-long-content`, title starting `[QA-LONG]`, with every layout and every field filled long (headings and
-buttons about three times the Figma copy, one 30-character word, paragraphs four times, repeaters at twice the
-rows, an image of the wrong ratio). Next.js: a route `/qa-long-content` built from a long copy of the content
-file. Run the check on it at the designed and sweep widths; its findings are overflow, clipped text and broken
-layout (it has no Figma render). It is removed before live (by its ID; the `[QA-LONG]` marker finds it).
+A test page shows the design still holds after the client edits: every layout and every field filled long
+(headings and buttons about three times the Figma copy, one 30-character word, paragraphs four times, repeaters
+at twice the rows, an image of the wrong ratio).
+
+- **WordPress, convert-to-wordpress kit 0.9 or later:** its `long-content.php` (the kit's `scripts/parity/`, the
+  built theme's `tests/parity/`). `php long-content.php make <route>` once per page makes a noindex copy at
+  `/kit-long-test-<page>/` (the front page: `kit-long-test-home`), marked by the post meta `_<prefix>_long_test`;
+  `list` prints their IDs and paths; `remove` deletes exactly those IDs, before live. Its `references/build.md` >
+  "Design checks: states, motion, long content" has the details.
+- **WordPress, older kit:** one page by hand, `qa-long-content`, title starting `[QA-LONG]`; removed before live
+  by its ID (the marker finds it).
+- **Next.js:** a route `/qa-long-content` built from a long copy of the content file; deleted before live.
+
+Run `check.mjs` on the test pages at the designed and sweep widths; its findings are overflow, clipped text and
+broken layout (they have no Figma render).
 
 ## 6. The read-only check (every phase)
 
@@ -116,7 +124,7 @@ It returns findings; the building chat adds them (`progress.py finding add`), me
 - **Setup:** site loads, admin or dev server works, plugins or packages as planned, tokens and fonts render, no
   notices or console errors, private files answer 403 (WordPress) or are outside `public/` (Next.js).
 - **Pages:** the check is clean at 1440 and 375 (boxes, pixels, elements, states); between widths nothing breaks;
-  the long content page holds; menus and mobile menu work by mouse, touch and keyboard; sliders drag; video plays
+  the long content test pages hold; menus and mobile menu work by mouse, touch and keyboard; sliders drag; video plays
   as designed; every page editable in ACF and the edit shows on the page (WordPress); no hard-coded content that
   belongs in a field; every section has its el and state lines.
 - **Forms and email:** every form submits locally, validation and error states, thank-you redirect, the email

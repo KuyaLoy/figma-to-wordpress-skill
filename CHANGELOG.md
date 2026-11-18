@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-18
+
+### Fixed
+
+- Long content on WordPress: `references/qa.md` now names convert-to-wordpress 0.9's `long-content.php` (the
+  kit's `scripts/parity/`, the theme's `tests/parity/`; `make <route>` per page, `list`, `remove`: noindex copies at
+  `/kit-long-test-<page>/`, removed by their stored IDs), not `design-check.mjs --long`, which only checks them.
+  `qa-long-content` with `[QA-LONG]` stays for an older kit; Next.js keeps its `/qa-long-content` route. SKILL.md's
+  live check says "the long content test pages removed".
+
 ## [0.2.0] - 2026-11-18
 
 Closer to the design, checked by numbers; fewer publishes; usable from other AI tools.

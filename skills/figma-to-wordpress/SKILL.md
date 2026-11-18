@@ -105,7 +105,7 @@ One phase at a time, in this order. Each phase ends with QA that only collects f
 | Phase | WordPress | Next.js |
 |---|---|---|
 | 1 Setup | Local WordPress in one go, the plugins and the theme (`references/wordpress.md`); tokens, fonts and base styles from `tokens.json` | The app, Tailwind tokens from `tokens.json`, fonts with `next/font` (`references/nextjs.md`) |
-| 2 Pages | Section by section (below): global parts first (header, footer, menus, mobile menu), then the template most pages share, then the other pages; every page editable in ACF; last, the long content test page | The same order, as components and routes; content in one typed content file per page unless the task names a CMS; last, the long content route |
+| 2 Pages | Section by section (below): global parts first (header, footer, menus, mobile menu), then the template most pages share, then the other pages; every page editable in ACF; last, the long content test pages | The same order, as components and routes; content in one typed content file per page unless the task names a CMS; last, the long content route |
 | 3 Forms and email | Contact Form 7 forms with the branded emails, spam protection, thank-you page | Server actions or a route handler with validation, spam protection and the task's mail service |
 | 4 SEO, security, speed | Yoast, schema, redirects, hardening, speed checks | Metadata API, sitemap, robots, JSON-LD, headers, speed checks |
 | Fix | Every open finding in the list, one by one | Same |
@@ -144,7 +144,7 @@ re-checked). A section with an open finding shows it on the page.
 
 Details: `references/qa.md`.
 
-1. `check.mjs` over the phase's routes (and the long content page from phase 2) at 1440 and 375 plus the overflow
+1. `check.mjs` over the phase's routes (and the long content test pages from phase 2) at 1440 and 375 plus the overflow
    sweep (320 to 1920). It writes the full result to `_figma/qa/` and prints a summary.
 2. One fresh read-only check (in Claude Code: a subagent on a cheaper model such as Sonnet; in other tools: a new
    chat told to only read): the check's numbers first, images only for its failures, then the phase's checklist
@@ -167,8 +167,8 @@ progress page, write the pre-launch part of the report, and ask for the go-live 
   developer in the host's settings; the domain and redirects as the task says.
 - **Live QA:** `check.mjs` on the live address over every route; forms with one real test lead each, named
   `TEST <developer> - please ignore`, after the developer agrees; tracking and the conversion fire; nothing from
-  local left (search engines allowed, debug off, no `_figma/` or private files reachable, the `[QA-LONG]` test
-  page removed).
+  local left (search engines allowed, debug off, no `_figma/` or private files reachable, the long content test
+  pages removed: `references/qa.md`).
 
 ## The report
 
