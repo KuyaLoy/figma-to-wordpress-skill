@@ -8,8 +8,9 @@ source is a Figma design instead of an existing website.
 
 - Installed skill: `~/.claude/skills/convert-to-wordpress/` (a clone of github.com/KuyaLoy/convert-wordpress-skill;
   it has `SKILL.md`, `scripts/`, `assets/`, `references/` and the developer's `profile.local.json`).
-- Read its **WordPress essentials** (its SKILL.md links them; read only the part for the current phase) and use its
-  scripts by path. Not installed: ask the developer once where it is, or clone it with their OK.
+- Read its **WordPress essentials**, `references/wordpress-essentials.md` (from its 0.8.0; an older kit: its
+  SKILL.md), only the part for the current phase, and use the scripts each item names by path. Not installed: ask
+  the developer once where it is, or clone it with their OK.
 - Its rules for WordPress itself apply unchanged: plugins, theme and prefix, ACF field model and Theme Settings,
   seeding, Contact Form 7 and the branded emails, spam protection, Yoast, hardening, the client's wp-admin, launch
   and rollback, live QA and the report format.
@@ -20,10 +21,11 @@ Run the kit's setup without stopping at each step (one OK for the whole list of 
 with its source and size, unless the developer's profile says otherwise):
 
 1. The local site: folder, address and database as the kit's doctor suggests (or the task says).
-2. WordPress downloaded and checked, `wp-config.php` written by the kit's scripts (local environment, debug log).
-3. Installed with the developer's default local admin from their profile (`admin_username`, and the default local
-   password the kit's essentials name). Read at run time, used only on this local site, never written to any file of
-   the build. No default in the profile: the developer types the password.
+2. WordPress downloaded and checked, `wp-config.php` written by the kit's scripts (local environment, debug log):
+   `scripts/setup/get-wordpress.py` and `make-wp-config.py`.
+3. Installed by `scripts/setup/install-wp.py <wp_root> --url <local url> --profile <kit>/profile.local.json` with
+   the developer's default local admin from that profile (its `local_admin` entry). Read at run time, used only on
+   this local site, never written to any file of the build. No default in the profile: the developer types it.
 4. Plugins: ACF PRO from the developer's zip (`plugin_zips.acf_pro`; the developer pastes the licence into
    wp-config), Contact Form 7, Yoast SEO, and the profile's `required` extra plugins. Not locally: the WebP
    conversion plugin and Contact Form CFDB7 (they go on live at launch).

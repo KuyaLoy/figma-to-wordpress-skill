@@ -5,6 +5,14 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-18
+
+### Changed
+
+- `references/wordpress.md` names convert-to-wordpress's `references/wordpress-essentials.md` (its 0.8.0) and its
+  one-go setup scripts (`get-wordpress.py`, `make-wp-config.py`, `install-wp.py` with the profile's `local_admin`),
+  instead of only pointing at its SKILL.md.
+
 ## [0.1.0] - 2026-11-18
 
 First version: a Figma design built 1:1 as a WordPress or Next.js site by one chat, phase by phase.
