@@ -18,8 +18,10 @@ How it works:
 - **Phase by phase**: setup, pages (section by section, one small Figma call per section, values saved to disk),
   forms and email, SEO, security and speed. QA after each phase only collects findings; after the last phase the
   whole list is fixed, then QA runs again until it finds 0. Then your go, then live.
-- **1:1**: every section within 1 px of Figma at 1440 and 2 px at 375, measured by the check script; nothing cut or
-  overflowing at other widths; images sharp on retina screens.
+- **1:1, by numbers**: every section within 1 px of Figma at 1440 and 2 px at 375, then a pixel diff against
+  Figma's render and checks of each heading, text, button and image (font, size, weight, line height, letter
+  spacing, colour, crop) and of hover, focus, menus, tabs and sliders. Images are opened only for failures.
+  Nothing cut or overflowing at other widths, also with every field filled long; images sharp on retina screens.
 - **Optimized by default**: SEO standard, speed built in (PageSpeed Insights aimed at a pass, not a must; the design
   is never changed for a score).
 - **A progress page** shows what is done and what is not: phases, every page's sections with their status, open QA
@@ -27,10 +29,10 @@ How it works:
 
 ## Requirements
 
-- Claude Code (the desktop app's Code tab or the CLI) with a **Figma MCP server** connected (Figma's remote server
-  or the desktop app's).
-- Python 3 and Node.js 18+; Playwright for the check script (`npm i -D playwright`, `npx playwright install
-  chromium`).
+- An AI coding tool that reads Agent Skills and runs commands (Claude Code, Codex, Antigravity, Cursor, OpenCode,
+  Cline, Devin Desktop...) with a **Figma MCP server** connected (Figma's remote server or the desktop app's).
+- Python 3 and Node.js 18+; for the check script `npm i -D playwright pixelmatch pngjs` and `npx playwright install
+  chromium`.
 - WordPress builds: a local web stack (Laragon, XAMPP, MAMP, Local...) and the convert-to-wordpress skill.
 
 ## Install
@@ -46,6 +48,11 @@ Then turn on automatic updates (once): `/plugin` > Marketplaces > figma-to-wordp
 
 Or as a git clone (updates with `git pull --ff-only`): clone this repository and link
 `skills/figma-to-wordpress/` into `~/.claude/skills/figma-to-wordpress`.
+
+Other AI tools: link the same clone's `skills/figma-to-wordpress/` into the tool's skills folder under the name
+`figma-to-wordpress` (for example `~/.agents/skills/` for Codex, Cursor and Devin Desktop, `~/.gemini/config/skills/`
+for Antigravity, `~/.config/opencode/skills/` for OpenCode). The steps are plain words; where a step names a Claude
+tool (the read-only subagent, a message to Command Center), SKILL.md gives the fallback.
 
 ## Use
 

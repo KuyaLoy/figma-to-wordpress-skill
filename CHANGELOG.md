@@ -5,6 +5,38 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-18
+
+Closer to the design, checked by numbers; fewer publishes; usable from other AI tools.
+
+### Added
+
+- `scripts/check.mjs`: a pixel diff of each section against Figma's 1x render
+  (`_figma/qa/figma/<page>--<section>@<W>.png`, pixelmatch and pngjs loaded from the project), the section shot at
+  CSS scale with motion off and images loaded; a failing diff keeps its diff and site images in `_figma/qa/diff/`.
+- `el@W` spec lines: font family, size, weight, line height, letter spacing, colour, background, box, radius,
+  opacity, object-fit and object-position of headings, text, buttons and images, targeted by quoted text or a
+  selector inside the section.
+- `state@W` spec lines: hover, focus, click or swipe a target, then measure it (or another target: an open menu, a
+  tab, the next slide) against Figma's variant, including `visible` and `focusring`.
+- "Clipped text" on every run: text cut by an overflow-hidden box (line clamps and ellipses allowed).
+- Pass marks as defaults until the first real build sets them (`references/qa.md`): box 1 px at 1440 and 2 px at
+  375, pixel diff 2%, size 0.5 px, line height 1 px, letter spacing 0.1 px, colour 3/255; options `--max-diff`,
+  `--marks`, `--settle`, `--no-pixel`, `--no-states`.
+- Long content: a `qa-long-content` test page (`[QA-LONG]` marker) with every field filled long, checked in phase 2
+  and full QA, removed before live.
+- `tests/check.test.mjs` (spec parsing and comparisons), run by the `check` workflow.
+
+### Changed
+
+- The progress page is published at the plan, once per finished page and at each phase end; `progress.json` still
+  updates per section.
+- The read-only QA check reads the numbers first and opens images only for failures.
+- Tool-neutral steps: the read-only check is a Sonnet subagent in Claude Code and a new read-only chat elsewhere; a
+  stop report goes to Command Center as a message in the Claude desktop app and as a line under `## Stops` in
+  notes.md elsewhere. README lists other AI tools and their skills folders.
+- Figma renders are downloaded by `get_screenshot`'s URL straight to disk, never brought into the chat.
+
 ## [0.1.1] - 2026-11-18
 
 ### Changed

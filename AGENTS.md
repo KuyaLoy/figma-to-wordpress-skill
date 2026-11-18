@@ -19,7 +19,11 @@ builds also use the convert-to-wordpress skill's kit (`references/wordpress.md` 
 - Keep the progress.json keys stable (`references/progress.md`): other skills may read the same shape.
 - Before a change is done:
   - `claude plugin validate . --strict` passes;
-  - `python -m unittest discover -s tests` and `node --check skills/figma-to-wordpress/scripts/check.mjs` pass;
+  - `python -m unittest discover -s tests`, `node --check skills/figma-to-wordpress/scripts/check.mjs` and
+    `node --test tests/check.test.mjs` pass; a change to check.mjs also runs once on a small local page with one
+    planted failure per check;
+  - steps stay in plain words that any AI tool can follow; a Claude-only tool gets its fallback next to it;
+    the SKILL.md frontmatter keeps only name (equal to the folder), description and license;
   - every changed line is in CHANGELOG.md: a change to the skill or the manifests (`skills/`, `.claude-plugin/`)
     under its new version (see Release), a docs-only change under Unreleased;
   - a private-name scan of the repo and its history finds nothing, commit author and committer names and emails

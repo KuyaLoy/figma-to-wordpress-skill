@@ -8,7 +8,7 @@ names are the same.
 | `get_metadata` | The node tree (ids, names, sizes, positions) of a page or frame | Small to large: one frame at a time |
 | `get_design_context` | One section's code-like description, values and assets, plus a screenshot | Large: one section at a time |
 | `get_variable_defs` | Variables (colours, type, spacing) used by a node | Small |
-| `get_screenshot` | A picture of a node, the visual target | Image tokens: only when needed |
+| `get_screenshot` | A render of a node: saved to disk by its URL as the pixel diff's reference | Small when downloaded; image tokens only if opened |
 
 Links: `https://www.figma.com/design/<fileKey>/<name>?node-id=12-345` means file `<fileKey>`, node `12:345`.
 
@@ -64,6 +64,8 @@ About 20 to 40 lines, values only, so a resumed chat never calls Figma again for
 - node ids (desktop, mobile); the section's box at each designed width as one line each, which the check script
   reads: `box@1440: w=1440 h=760` and `box@375: w=375 h=812`;
 - layout (columns, gaps, padding, alignment), type per text (token or values), colours as token names;
+- `el@W` lines for each text style, button and image, and `state@W` lines for each variant (hover, focus, open
+  menu, tab, slide), with Figma's values (syntax in `references/qa.md`); the check script measures them;
 - each asset: file name in the project, its slot, rendered size at each width, export scale;
 - interactions and states; the copy verbatim (or "see Figma" for long text, with the node id).
 
@@ -78,7 +80,7 @@ About 20 to 40 lines, values only, so a resumed chat never calls Figma again for
 
 ## Comparing with Figma
 
-The screenshot from `get_design_context` (or `get_screenshot`) is the visual target. Measured comparison is the
-check script's job (section heights and widths at each designed width, against the spec's values); the visual side
-is the read-only QA check's job (`references/qa.md`). Save Figma screenshots you need for QA under `_figma/qa/figma/`
-once; never request the same screenshot twice.
+Numbers first. The check script compares each section with Figma: its box, a pixel diff against Figma's 1x render
+(`_figma/qa/figma/<page>--<section>@<W>.png`, downloaded once by the `get_screenshot` URL, `references/qa.md`),
+and the `el@W` and `state@W` values. The read-only QA check opens images only for what failed. Never request the
+same render twice, and never bring a render into the chat to compare by eye.

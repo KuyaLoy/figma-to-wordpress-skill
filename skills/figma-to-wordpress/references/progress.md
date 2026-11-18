@@ -37,11 +37,14 @@ A section with an open finding gets a red outline and "(n open)" on the page.
 
 ## Publishing
 
+- **When:** `progress.json` and `progress.html` update on every write (per section). The page is **published** only
+  at the plan, once per finished page (its last section built) and at each phase end (QA collected, fix step done,
+  QA at 0, live). A page of 8 sections publishes once, not 8 times.
 - **Claude desktop app (Artifact tool):** publish `_figma/progress.html` once as a private artifact, then save its
-  link with `progress.py <dir> url <link>`. After each section and each phase: re-render (automatic) and publish
-  the same file again with that link as `url`, so the link stays the same. A new chat reads the link from
-  `progress.py <dir> status`.
-- **No Artifact tool:** open `_figma/progress.html` in a browser; it is self-contained (no scripts, no requests).
+  link with `progress.py <dir> url <link>`. Later publishes send the same file again with that link as `url`, so
+  the link stays the same. A new chat reads the link from `progress.py <dir> status`.
+- **Other tools:** open `_figma/progress.html` in a browser (self-contained: no scripts, no requests); the
+  developer refreshes it at the same moments.
 - The page is private: it lists pages, findings and the log, never passwords or keys.
 
 ## progress.json shape

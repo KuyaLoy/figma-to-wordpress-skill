@@ -21,27 +21,28 @@ Paths are relative to this file's folder. Read a reference only when its step co
 | `references/figma.md` | Figma MCP calls, the inventory, tokens, assets, design gaps | Start, and every section |
 | `references/wordpress.md` | The WordPress target: what comes from convert-to-wordpress, what differs | Target WordPress |
 | `references/nextjs.md` | The Next.js target: stack, tokens, images, fonts, metadata, deploy | Target Next.js |
-| `references/qa.md` | QA per phase, the check script, the read-only check, the fix loop | End of each phase |
+| `references/qa.md` | The check script, spec lines, pass marks, long content, the read-only check, the fix loop | First section; end of each phase |
 | `references/progress.md` | progress.json and the progress page | Start; when publishing |
 | `scripts/progress.py` | Pages, sections, statuses, findings, log; renders the progress page | Every section |
-| `scripts/check.mjs` | Browser check at 1440 and 375 plus an overflow sweep; summary only | Every section, every phase |
+| `scripts/check.mjs` | Numbers at 1440 and 375 (boxes, pixel diff against Figma, type, colour, images, states) plus an overflow sweep; summary only | Every section, every phase |
 
 WordPress builds also use the **convert-to-wordpress** skill's kit (setup scripts, theme, fields, forms, SEO,
 launch): `references/wordpress.md` says which parts and where to find it. Never copy its rules here; read them there.
 
 ## Rules (always)
 
-1. **One chat builds the whole site.** No builder, tester or QA chats, no helper subagents for building. The only
-   other agent is the read-only QA check at the end of each phase. (Learned 18 Nov 2026: a six-chat build spent 79%
-   of its usage on chats re-reading their own history.)
+1. **One chat builds the whole site.** No builder, tester or QA chats, no helpers for building. The only other
+   agent is the read-only QA check at the end of each phase. (Learned 18 Nov 2026: a six-chat build spent 79% of
+   its usage on chats re-reading their own history.)
 2. **The task first.** A Zoho (or other tracker) task's instructions win over this skill's defaults. Read all of
    it (description, linked docs, comments, attachments) before the inventory and save it verbatim to
    `_figma/brief.md`. Follow it verbatim: copy, icons, emoji, long titles, no rewording.
-3. **1:1 from real values.** Build from Figma's data (`get_design_context`, variables), never by eye from a
-   screenshot; screenshots are only the visual target to compare against. Done standard at the designed widths
-   (usually 1440 and 375): every section within 1 px of Figma on desktop and 2 px on mobile. Between and beyond them
-   nothing overflows, is cut, squashed or stretched. A mismatch is accepted only with numeric proof that Figma
-   itself is inconsistent; log it as a decision.
+3. **1:1 from real values, checked by numbers.** Build from Figma's data (`get_design_context`, variables), never
+   by eye from a screenshot. Done standard at the designed widths (usually 1440 and 375): every section's box
+   within 1 px of Figma on desktop and 2 px on mobile, and inside it the pixel diff, type, colours, images and
+   states within the pass marks (`references/qa.md`). Between and beyond them nothing overflows, is cut, squashed
+   or stretched, also with long content. A mismatch is accepted only with numeric proof that Figma itself is
+   inconsistent; log it as a decision.
 4. **Small Figma calls.** One node per call: the section being built, desktop and mobile. Save what it returns once
    to `_figma/spec/` and re-read the file, never the page again. Large pages: `get_metadata` first, then one section.
 5. **Straightforward.** Decide what has a sensible default and log it (`progress.py log`, and "Decisions" in the
@@ -62,13 +63,16 @@ launch): `references/wordpress.md` says which parts and where to find it. Never 
    sites only; live passwords, licence keys and API keys are typed by the developer.
 9. **Live only after the developer's go.** A backup before any live change, one change at a time, a rollback named.
 10. **Spend less.** Scripts write big output to disk and print a summary. Read summaries, not whole files. Never read
-    node_modules, vendor, minified, lock or build files. Screenshots only of failures, cropped to the problem.
+    node_modules, vendor, minified, lock or build files. Numbers first: open an image only for a failing check,
+    cropped to the problem. Figma renders go to disk by URL, never into the chat.
 11. **Never stop silently.** Every turn that ends without the work going on (plan ready, a phase's QA done, a
     checkpoint, a block, waiting for a go) ends with a short stop report: what was done, the state, decisions taken,
-    and last `Next: <step> — waiting on <who>`. In a Command Center project send it to Command Center (parent) too.
-12. **Context watch.** Check your context % before each section. From 50%: finish the section, write
-    `_figma/checkpoint.md` (task, go quoted, done so far, state, exact next step), send CHECKPOINT and end the turn.
-    At 75%: the same at the first safe point. `progress.json` and the checkpoint are enough to resume cold.
+    and last `Next: <step> — waiting on <who>`. In a Command Center project it also goes to Command Center (in the
+    Claude desktop app: a message to the parent chat; in other tools: a line under `## Stops` in notes.md).
+12. **Context watch.** Check your context % (the tool's own meter) before each section. From 50%: finish the
+    section, write `_figma/checkpoint.md` (task, go quoted, done so far, state, exact next step), report CHECKPOINT
+    and end the turn. At 75%: the same at the first safe point. `progress.json` and the checkpoint are enough to
+    resume cold.
 
 In a Command Center project (handoff.md says `Mode: Command Center`) this chat is a task chat: its Worker rules
 apply as well (go quoted in notes.md, stop messages, no Zoho posts). Where they and this skill differ, they win.
@@ -81,7 +85,8 @@ apply as well (go quoted in notes.md, stop messages, no Zoho posts). Where they 
 3. **Intake, once.** One batch of questions, defaults first, only what the task and the profile don't answer:
    target (WordPress unless the task says Next.js), where to build (local folder and address), the Figma file and
    which page or frames are final, live domain and host, form recipients, tracking (GTM), anything the task leaves
-   open. A Figma link without a node id: ask for the page or read the file's pages with `get_metadata`.
+   open. A Figma link without a node id: ask for the page or read the file's pages with `get_metadata`. The check
+   needs, in the project: `npm i -D playwright pixelmatch pngjs` (`references/qa.md`).
 4. **Inventory, once** (`references/figma.md`): pages and their desktop and mobile frames, breakpoints, tokens
    (variables, or inferred from nodes), fonts, components, video, GIF, motion and prototype interactions, hidden and
    off-canvas layers (drafts are never built), assets that need edits, design gaps. Write `_figma/inventory.md`
@@ -100,7 +105,7 @@ One phase at a time, in this order. Each phase ends with QA that only collects f
 | Phase | WordPress | Next.js |
 |---|---|---|
 | 1 Setup | Local WordPress in one go, the plugins and the theme (`references/wordpress.md`); tokens, fonts and base styles from `tokens.json` | The app, Tailwind tokens from `tokens.json`, fonts with `next/font` (`references/nextjs.md`) |
-| 2 Pages | Section by section (below): global parts first (header, footer, menus, mobile menu), then the template most pages share, then the other pages; every page editable in ACF | The same order, as components and routes; content in one typed content file per page unless the task names a CMS |
+| 2 Pages | Section by section (below): global parts first (header, footer, menus, mobile menu), then the template most pages share, then the other pages; every page editable in ACF; last, the long content test page | The same order, as components and routes; content in one typed content file per page unless the task names a CMS; last, the long content route |
 | 3 Forms and email | Contact Form 7 forms with the branded emails, spam protection, thank-you page | Server actions or a route handler with validation, spam protection and the task's mail service |
 | 4 SEO, security, speed | Yoast, schema, redirects, hardening, speed checks | Metadata API, sitemap, robots, JSON-LD, headers, speed checks |
 | Fix | Every open finding in the list, one by one | Same |
@@ -116,18 +121,21 @@ else waits for the Fix step, so each phase runs straight through.
 For every section, in page order:
 
 1. `progress.py <dir> set <page> <section> building`.
-2. **Figma:** `get_design_context` for that section's desktop node and its mobile node only, with a screenshot.
-   Sparse answer: request its visible child nodes in one parallel batch. Save the values to
-   `_figma/spec/<page>--<section>.md` (sizes, spacing, type, colours as token names, assets, interactions, copy).
-   Download its assets into the project (rule 7). A section that repeats one already built: reuse it, no new call.
+2. **Figma:** `get_design_context` for that section's desktop node and its mobile node only. Sparse answer:
+   request its visible child nodes in one parallel batch. Save the values to `_figma/spec/<page>--<section>.md`
+   (sizes, spacing, type, colours as token names, assets, interactions, copy) with the lines the check reads:
+   `box@W`, `el@W` for each text style, button and image, `state@W` for each variant (`references/qa.md`). Save
+   Figma's render of the node at 1x to `_figma/qa/figma/<page>--<section>@<W>.png` by its URL. Download its
+   assets into the project (rule 7). A section that repeats one already built: reuse it, no new call.
 3. **Build** from the spec, in the project's own stack: real layout (flex, grid), never Figma's absolute
    positions; tokens, never raw values; the copy verbatim; `data-section="<slug>"` on the section's root (the
    check script finds it there). WordPress: a template part with its ACF fields, seeded
    with the Figma copy (`references/wordpress.md`). Next.js: a component with typed props.
-4. **Check your own work:** `node <kit>/scripts/check.mjs --base <url> --route <path> --section <id>
-   --spec _figma/spec/<page>--<section>.md` at 1440 and 375. Make your own mismatches match now: that is building,
-   not the fix loop. Stop when the section is within the done standard (rule 3).
-5. `progress.py <dir> set <page> <section> built`, then republish the progress page. One write per section.
+4. **Check your own work:** `node <kit>/scripts/check.mjs --base <url> --route <path> --page <page> --section
+   <slug>` (1440 and 375: box, pixel diff, elements, states). Make your own mismatches match now: that is
+   building, not the fix loop. Stop when the section passes (rule 3); open the diff image only if it fails.
+5. `progress.py <dir> set <page> <section> built` (one write per section). When the page's last section is built:
+   publish the progress page once (`references/progress.md`).
 
 Statuses: `todo` > `building` > `built` > `checked` (QA passed on it) > `fixed` (it had findings; all fixed and
 re-checked). A section with an open finding shows it on the page.
@@ -136,13 +144,15 @@ re-checked). A section with an open finding shows it on the page.
 
 Details: `references/qa.md`.
 
-1. `check.mjs` over the phase's routes at 1440 and 375 plus the overflow sweep (320 to 1920). It writes the full
-   result to `_figma/qa/` and prints a summary.
-2. One read-only check by a subagent on a cheaper model (Sonnet): the phase's checklist from `references/qa.md`,
-   the Figma screenshots against the local screenshots `check.mjs` saved. It changes nothing and returns findings.
+1. `check.mjs` over the phase's routes (and the long content page from phase 2) at 1440 and 375 plus the overflow
+   sweep (320 to 1920). It writes the full result to `_figma/qa/` and prints a summary.
+2. One fresh read-only check (in Claude Code: a subagent on a cheaper model such as Sonnet; in other tools: a new
+   chat told to only read): the check's numbers first, images only for its failures, then the phase's checklist
+   (`references/qa.md`). It changes nothing and returns findings.
 3. Every finding goes into the list once: `progress.py <dir> finding add ...` (severity, page, section, what,
    expected from Figma, measured). Duplicates are merged. Nothing is fixed now, except a blocker.
-4. Report the phase's stop (rule 11) and go straight on to the next phase. No go is needed between phases.
+4. Publish the progress page once, report the phase's stop (rule 11) and go straight on to the next phase. No go
+   is needed between phases.
 
 After phase 4: **Fix** every open finding (`progress.py finding fix <id>` after each, with how it was verified),
 then run **full QA** over every route. New findings: add, fix, run again. Repeat until QA finds 0. Then render the
@@ -157,12 +167,14 @@ progress page, write the pre-launch part of the report, and ask for the go-live 
   developer in the host's settings; the domain and redirects as the task says.
 - **Live QA:** `check.mjs` on the live address over every route; forms with one real test lead each, named
   `TEST <developer> - please ignore`, after the developer agrees; tracking and the conversion fire; nothing from
-  local left (search engines allowed, debug off, no `_figma/` or private files reachable).
+  local left (search engines allowed, debug off, no `_figma/` or private files reachable, the `[QA-LONG]` test
+  page removed).
 
 ## The report
 
 `_figma/report.md`, standing alone: **DONE** first; what was built (pages, sections, forms); how it was verified
-(QA rounds, final 0, routes and widths checked, live checks); what is not verified; decisions and defaults taken;
+(QA rounds, final 0, routes and widths checked, the pass marks used, live checks); what is not verified; decisions
+and defaults taken;
 design gaps built from the design system; image edits made; what the client must supply or do (copy marked TBC,
 DNS, logins); rollback location; "Findings (not touched)". A Zoho task gets a short completion comment draft for the
 developer or Command Center to post; this skill never posts in Zoho itself.
