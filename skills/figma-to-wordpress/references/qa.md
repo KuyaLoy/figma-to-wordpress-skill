@@ -113,20 +113,52 @@ other tools: a new chat told to only read). Its brief (fill the brackets):
 > Read-only QA of [site] after phase [n]. Change nothing. Read `_figma/progress.json`, the phase checklist below
 > and the check's latest JSON in `_figma/qa/`. Start from the numbers: every failing line there is a finding. Open
 > images only for those failures (`_figma/qa/diff/`, the Figma render in `_figma/qa/figma/`), to say what differs.
-> Then the checklist items the script can't measure. Return findings only, one line each: severity (blocker,
-> major, minor), page/section, what is wrong, what Figma shows, what the site shows. No style opinions. At most 40
-> lines.
+> Then the checklist items the script can't measure. Then review the code the phase changed (`git diff` since the
+> last phase gate) against the code checklist and the self-check output. Return findings only, one line each:
+> severity (blocker, major, minor), page/section or file:line, what is wrong, what Figma or the rule says, what
+> the site or code does. No style opinions beyond the rules. At most 40 lines.
 
-It returns findings; the building chat adds them (`progress.py finding add`), merging duplicates.
+It returns findings; the building chat adds them (`progress.py finding add`), merging duplicates. The code review
+runs at every phase gate, not only the first ones.
 
-## 7. Checklists (the read-only check uses the one for the phase)
+## 7. Code gates and the self-check (every phase gate, and before DONE)
+
+SKILL.md rule 13 in commands. Run in the theme (WordPress) or the app (Next.js); every failure is a finding.
+
+- **PHPCS** (WordPress): `vendor/bin/phpcs` with the theme's `phpcs.xml`, where the theme's own escaping and
+  sanitising helpers are registered (`WordPress.Security.EscapeOutput` property `customEscapingFunctions`, and
+  `customSanitizingFunctions` where used). No `phpcs:disable` and no blanket `phpcs:ignore`; one narrow ignore only
+  with a reason on the same line.
+- **Prettier and ESLint:** `npx prettier --check .` and `npx eslint .` (Next.js: `npm run lint`), with the
+  project's configs; build output, vendor and node_modules ignored.
+- **Self-check** (grep, or rg the same patterns), over the theme's or app's source; each hit is fixed or kept with a
+  one-line reason in the report:
+
+```
+X="--exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=dist --exclude-dir=build --exclude-dir=.next"
+grep -rnE $X --include='*.php' --include='*.js' --include='*.jsx' --include='*.tsx' -e '[a-z]-\[(#|[0-9])' .
+grep -rnE $X --include='*.css' -e '#[0-9a-fA-F]{3,8}\b' . | grep -v tokens
+grep -rnE $X --include='*.php' --include='*.js' --include='*.tsx' -e '[0-9]+:[0-9]+|\b[A-Z][A-Z0-9]+-T[0-9]+\b' .
+grep -rn $X --include='*.php' -e 'phpcs:ignore' -e 'phpcs:disable' .
+```
+
+  In order: one-off values, hex outside the tokens file, Figma node IDs and ticket tags, ignore comments. The
+  node-ID pattern also matches times and ratios: read the hits, fix only node IDs.
+- **Size and shape:** no section template or component over about 250 lines or 15 fields or props (split it); one
+  job per file (form logic, markup and JS apart); no inline `<script>` (WordPress: enqueued; Next.js: imported);
+  no kit file, helper, config or seed file the site doesn't use.
+
+## 8. Checklists (the read-only check uses the one for the phase)
 
 - **Setup:** site loads, admin or dev server works, plugins or packages as planned, tokens and fonts render, no
-  notices or console errors, private files answer 403 (WordPress) or are outside `public/` (Next.js).
+  notices or console errors, private files answer 403 (WordPress) or are outside `public/` (Next.js); the starter
+  chosen by the rule and the reason in the plan; only the kit files the site uses.
 - **Pages:** the check is clean at 1440 and 375 (boxes, pixels, elements, states); between widths nothing breaks;
-  the long content test pages hold; menus and mobile menu work by mouse, touch and keyboard; sliders drag; video plays
-  as designed; every page editable in ACF and the edit shows on the page (WordPress); no hard-coded content that
-  belongs in a field; every section has its el and state lines.
+  the long content test pages hold; menus and mobile menu work by mouse, touch and keyboard; sliders drag; video
+  plays as designed; every page editable in ACF and the edit shows on the page (WordPress); no hard-coded content
+  that belongs in a field; every section has its el and state lines.
+- **Code (every phase):** section 7 is clean; values come from tokens; a shared map (colours, variants) exists once;
+  sections reuse parts instead of copying them; comments say why, with no Figma node IDs or ticket tags.
 - **Forms and email:** every form submits locally, validation and error states, thank-you redirect, the email
   arrives (local mail capture) with the right layout, recipients and reply-to; spam protection on.
 - **SEO, security, speed:** one H1 and heading order, titles and descriptions, canonicals, Open Graph, sitemap,
@@ -134,7 +166,7 @@ It returns findings; the building chat adds them (`progress.py finding add`), me
   images sized, fonts swap, little JS; local Lighthouse as a regression guard only.
 - **Full QA (the loop):** all of the above over every route.
 
-## 8. Findings
+## 9. Findings
 
 - One list in `progress.json`: `progress.py <dir> finding add --severity <blocker|major|minor> --page <slug>
   --section <slug> --what "..." --expected "<Figma value>" --measured "<site value>"`.

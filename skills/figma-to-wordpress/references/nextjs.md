@@ -9,12 +9,15 @@ WordPress; only the stack differs.
   install; it downloads packages). Node LTS. Commit the fresh app before any change.
 - Tokens: `_figma/tokens.json` becomes Tailwind's theme. Tailwind 4: an `@theme` block in `src/app/globals.css`
   (`--color-brand: #f5412c; --font-sans: var(--font-inter); --text-h1: 3.5rem; --text-h1--line-height: 4rem; ...`).
-  Tailwind 3: `tailwind.config.ts` `theme.extend`. Utilities on tokens; custom CSS only where utilities can't.
+  Tailwind 3: `tailwind.config.ts` `theme.extend`. Utilities on tokens; custom CSS only where utilities can't. A
+  value with no token gets one; no arbitrary values (`text-[19px]`, `bg-[#...]`) and no hex outside the theme.
 - Fonts: `next/font/google` (or `next/font/local` for licensed files) with `display: 'swap'`, exposed as CSS
   variables and mapped in the theme. Only the weights Figma uses.
 - Container: the designed desktop width (often 1440) as the max width, centred; sections that bleed to the edge in
   Figma keep their full-width background.
-- Lint and type check clean: `npm run lint`, `npx tsc --noEmit`.
+- Lint, format and type check clean at every phase gate: `npm run lint` (ESLint), `npx prettier --check .`
+  (Prettier added as a dev dependency with `prettier-plugin-tailwindcss`), `npx tsc --noEmit`. Remove the
+  starter's demo files and assets the site doesn't use (SKILL.md rule 13).
 
 ## Phase 2: pages
 

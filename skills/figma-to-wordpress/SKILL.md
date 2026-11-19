@@ -73,6 +73,18 @@ launch): `references/wordpress.md` says which parts and where to find it. Never 
     section, write `_figma/checkpoint.md` (task, go quoted, done so far, state, exact next step), report CHECKPOINT
     and end the turn. At 75%: the same at the first safe point. `progress.json` and the checkpoint are enough to
     resume cold.
+13. **Clean code: reusable, simple, no spaghetti.** (Learned 19 Nov 2026: a large Figma build had no bugs, but about
+    2,000 one-off values, a colour map copied about nine times, a 399-line section, Figma node IDs and ticket tags in
+    hundreds of comments, unused kit files shipped, and PHPCS passing only through ignore comments.)
+    - **Tokens, not one-offs:** a design value with no token gets one (`@theme` or a CSS variable), never
+      `text-[19px]`, `bg-[#...]` or a hex in CSS; a shared map (colours, variants) lives once.
+    - **Ship only what is used:** only the kit files the build uses; no unused helpers, empty configs or seed files
+      in the theme or app.
+    - **Comments say why:** no Figma node IDs, no ticket tags; history lives in git.
+    - **Size limits:** split a section past about 15 options or 250 lines; one job per file (logic, markup and JS
+      apart); JS enqueued or imported, never inline.
+    - **Gates:** PHPCS passes with the theme's escaping helpers registered (no blanket ignore comments), Prettier
+      and ESLint pass, and the self-check finds nothing (`references/qa.md`), at every phase gate and before DONE.
 
 In a Command Center project (handoff.md says `Mode: Command Center`) this chat is a task chat: its Worker rules
 apply as well (go quoted in notes.md, stop messages, no Zoho posts). Where they and this skill differ, they win.
@@ -144,11 +156,13 @@ re-checked). A section with an open finding shows it on the page.
 
 Details: `references/qa.md`.
 
-1. `check.mjs` over the phase's routes (and the long content test pages from phase 2) at 1440 and 375 plus the overflow
-   sweep (320 to 1920). It writes the full result to `_figma/qa/` and prints a summary.
+1. `check.mjs` over the phase's routes (and the long content test pages from phase 2) at 1440 and 375 plus the
+   overflow sweep (320 to 1920). It writes the full result to `_figma/qa/` and prints a summary. Then the code
+   gates (rule 13): PHPCS, Prettier, ESLint and the self-check (`references/qa.md`).
 2. One fresh read-only check (in Claude Code: a subagent on a cheaper model such as Sonnet; in other tools: a new
-   chat told to only read): the check's numbers first, images only for its failures, then the phase's checklist
-   (`references/qa.md`). It changes nothing and returns findings.
+   chat told to only read): the check's numbers first, images only for its failures, then the phase's checklist,
+   then a code review of the files the phase changed (`references/qa.md`). Every phase, not only the first ones.
+   It changes nothing and returns findings.
 3. Every finding goes into the list once: `progress.py <dir> finding add ...` (severity, page, section, what,
    expected from Figma, measured). Duplicates are merged. Nothing is fixed now, except a blocker.
 4. Publish the progress page once, report the phase's stop (rule 11) and go straight on to the next phase. No go
@@ -189,7 +203,8 @@ the developer's handoff rules.
 
 ## Done means
 
-Every page and section `checked` or `fixed` on the progress page; QA's last full run found 0; every page editable
+Every page and section `checked` or `fixed` on the progress page; QA's last full run found 0; the code gates pass
+(rule 13: PHPCS, Prettier, ESLint, the self-check, the code review); every page editable
 (WordPress) or every route built from typed content (Next.js); forms and emails proven on live; SEO, tracking and
 the conversion proven on live; WebP plugin and CFDB7 active on a live WordPress; nothing private reachable; the
 report written and the progress page republished; the stop report sent.

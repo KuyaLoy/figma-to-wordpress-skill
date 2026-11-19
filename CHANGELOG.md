@@ -5,6 +5,28 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-11-19
+
+Starter rule and code quality, from a read-only audit of a large Figma build (no bugs, but about 2,000 one-off
+values, a copied colour map, an oversized section, node IDs and ticket tags in comments, unused kit files, PHPCS
+passing through ignore comments, code review only in early phases).
+
+### Changed
+
+- `references/wordpress.md`: the starter by rule, not "_tw by default". Clearly easier in Tailwind (a design system
+  with repeating tokens, many reusable sections): _tw. A normal site that doesn't really need Tailwind: Barebones
+  with CSS-variable tokens. A Figma design is never a Tailwind source. The plan states the choice and one reason.
+- QA: the read-only check also reviews the code each phase changed, at every phase gate.
+
+### Added
+
+- SKILL.md rule 13, clean code: tokens not one-offs, ship only what is used, comments say why (no Figma node IDs or
+  ticket tags), size limits (about 15 options or 250 lines; one job per file; no inline JS), gates (PHPCS with the
+  theme's escaping helpers registered, Prettier, ESLint, the self-check) at every phase gate and before DONE.
+- `references/qa.md` section 7: the code gates and four self-check greps (one-off values, hex outside the tokens
+  file, node IDs and ticket tags, ignore comments); a code checklist for every phase.
+- `references/nextjs.md`: no arbitrary values, Prettier with the Tailwind plugin, unused starter files removed.
+
 ## [0.2.1] - 2026-11-18
 
 ### Fixed

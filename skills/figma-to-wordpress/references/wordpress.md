@@ -29,11 +29,16 @@ with its source and size, unless the developer's profile says otherwise):
 4. Plugins: ACF PRO from the developer's zip (`plugin_zips.acf_pro`; the developer pastes the licence into
    wp-config), Contact Form 7, Yoast SEO, and the profile's `required` extra plugins. Not locally: the WebP
    conversion plugin and Contact Form CFDB7 (they go on live at launch).
-5. The theme: the kit's Tailwind starter (`_tw`) by default, prepared by the kit; Barebones when the task asks for
-   plain CSS. Activate it, build its assets, PHPCS clean.
-6. Tokens: `_figma/tokens.json` becomes the theme's Tailwind `@theme` block (colours, fonts, type scale, radii,
-   shadows, spacing, container). Fonts self-hosted in the theme (`font-display: swap`, only the weights used,
-   the LCP font preloaded).
+5. The theme, by the starter rule (the plan states the choice and one reason; the developer can override; the
+   task's word wins). A Figma design is never a Tailwind source, so:
+   - **clearly easier in Tailwind** (a design system with repeating tokens: Figma variables or styles, many
+     reusable sections and components): the kit's Tailwind starter, **_tw**;
+   - **a normal site that doesn't really need Tailwind** (small, mostly one-off layouts, plain CSS expected):
+     **Barebones** with CSS-variable tokens.
+   Prepared by the kit (its setup names both). Activate it, build its assets, PHPCS clean (SKILL.md rule 13).
+6. Tokens: `_figma/tokens.json` becomes the theme's tokens: on _tw the Tailwind `@theme` block, on Barebones CSS
+   variables in one tokens file (colours, fonts, type scale, radii, shadows, spacing, container). Fonts
+   self-hosted in the theme (`font-display: swap`, only the weights used, the LCP font preloaded).
 7. Permalinks `/%postname%/`, the site's language and timezone, "Discourage search engines" on (local only).
 8. `_figma/.htaccess` with `Require all denied`; check it answers 403.
 
