@@ -16,7 +16,8 @@ builds also use the convert-to-wordpress skill's kit (`references/wordpress.md` 
 - No real names of people, clients, companies, portals, sites or internal task IDs. Examples use "Example",
   "ABC1-T8" and example.com. Personal details belong in the developer's local profile, never in the skill.
 - No password, licence key or API key anywhere in the repo, examples included.
-- Keep the progress.json keys stable (`references/progress.md`): other skills may read the same shape.
+- Keep the progress.json keys stable (`references/progress.md`): other skills may read the same shape. The live
+  page's collections and fields (`scripts/live.py`) stay the same as convert-to-wordpress's `live.py`.
 - Before a change is done:
   - `claude plugin validate . --strict` passes;
   - `python -m unittest discover -s tests`, `node --check skills/figma-to-wordpress/scripts/check.mjs` and

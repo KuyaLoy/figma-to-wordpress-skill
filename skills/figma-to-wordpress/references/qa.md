@@ -1,8 +1,8 @@
-# QA: numbers first, per phase, the fix loop, until 0
+# QA: numbers first, per phase, one full run, then re-check what changed
 
-QA after a phase **collects**: it adds findings to the list and fixes nothing, except a blocker. After phase 4 the
-whole list is fixed, then QA runs over everything again until it finds 0. Numbers come first: the check script
-measures, and pictures are opened only for what failed.
+QA after a phase **collects**: it adds findings to the list and fixes nothing, except a blocker. After phase 4: one
+full QA run over everything, then fix passes, each re-checking what it changed, until a re-check finds 0 (section
+10). Numbers come first: the check script measures, and pictures are opened only for what failed.
 
 ## 1. The check script (every section, every phase)
 
@@ -175,5 +175,36 @@ grep -rn $X --include='*.php' -e 'phpcs:ignore' -e 'phpcs:disable' .
   section and width; `progress.py <dir> finding fix <id> --how "<what changed, how verified>"`.
 - **Decided:** only with numeric proof that Figma itself is inconsistent (two frames disagree), or a client item
   outside the build: `progress.py <dir> finding decide <id> --why "..."`. Listed in the report.
-- **Full QA:** the script over every route and the read-only check with the full checklist. New findings: add, fix,
-  run again. Stop when a full run finds 0. Then `progress.py <dir> set '*' '*' checked`.
+- **The loop after phase 4:** section 10. When a re-check finds 0 and no finding is open:
+  `progress.py <dir> set '*' '*' checked`.
+
+## 10. The fix loop: one full run, then re-check what changed
+
+Every line of code gets one full review, and a review again whenever it changes. That is what keeps the quality,
+not repeating full runs over code nobody touched: a real build ran four full runs, runs 3 and 4 found new minor
+items in code already reviewed, and a second full pixel run of 600 shots found nothing.
+
+1. **Before every QA run, the self-check** (section 7; on WordPress also the kit's pre-QA self-check, below). What
+   it finds is the build's own work, fixed first, not a finding. It checks less than QA, never instead of it.
+2. **One full run per site,** after phase 4: the check script over every route at every width plus the overflow
+   sweep, the long content pages, the code gates, and a fresh read-only review of all the site's code with the full
+   checklist (`progress.py now "Full QA run"` and publish first; findings with `--phase "qa run 1"`). Its findings
+   are the fix list.
+3. **Fix pass:** every open finding, blockers and majors first; a finding that is right as it is becomes `decided`
+   with the reason (section 9). Publish after each fix batch.
+4. **Re-check, scoped to the change** (`--phase "qa run <n>"` for what it finds): re-check every fixed item (the
+   check for its section and widths, then `finding fix`); a fresh read-only review of the changed files and their
+   callers, in full (`git diff` since the last run); the check script's pixel and element checks only on the
+   routes whose rendering changed. Which routes: a route renders a changed template, component, section or
+   content file; a change to global CSS, the tokens, the layout, the header or footer, or a shared script changes
+   every route that loads it, so it re-runs them all. WordPress: the kit's `changed-routes.py` proves which
+   (below).
+5. **Blockers and majors** found by a re-check are fixed at once, in the next pass. A **minor** found later outside
+   the changed code is logged and fixed in the next fix pass, with no new full run for it. Repeat 3 and 4 until a
+   re-check finds 0 and no finding is open.
+6. **A new full run** only when a change touched most of the site (a refactor, a new starter, a token or CSS rebuild
+   that moved most rules): say why in the log.
+
+**WordPress:** the convert-to-wordpress kit's pre-QA self-check and its fix loop apply as they are (its
+`references/phases-and-qa.md` > The self-check before every QA run, and > The fix loop, 0.9.6 or later; never
+copied here); this section is the same rule in this skill's words, and it is the rule for Next.js.

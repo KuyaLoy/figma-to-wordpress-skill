@@ -25,8 +25,9 @@ How it works:
 - **Optimized by default**: SEO standard, speed built in (PageSpeed Insights aimed at a pass, not a must; the design
   is never changed for a score).
 - **A progress page** shows what is happening now and what is done: Now/Next and the update time at the top,
-  phases, every page's sections with their status, every QA finding with its status, a short log. Republished at
-  every unit end and every stop.
+  phases, every page's sections with their status, every QA finding with its status, a short log. In Claude it is
+  live (the page reads its own database, so it updates itself); in other tools a static page is republished at every
+  unit end and every stop.
 
 ## Requirements
 
@@ -74,7 +75,7 @@ Nothing goes live before your go. Its planning files (`_figma/`) are never serve
 .claude-plugin/marketplace.json       this repo as a one-plugin marketplace
 skills/figma-to-wordpress/SKILL.md    the workflow and its rules
 skills/figma-to-wordpress/references/ figma, wordpress, nextjs, qa, progress
-skills/figma-to-wordpress/scripts/    progress.py (progress page), check.mjs (browser check)
+skills/figma-to-wordpress/scripts/    progress.py and live.py (progress page), check.mjs (browser check)
 tests/                                tests for the scripts
 CHANGELOG.md                          what changed in each version
 AGENTS.md                             rules for changing the skill

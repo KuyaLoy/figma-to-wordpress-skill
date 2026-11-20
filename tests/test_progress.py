@@ -137,6 +137,65 @@ class ProgressTest(unittest.TestCase):
         self.assertIn('<b>nothing written</b>', html)
         self.assertIn('QA findings (0): 0 open', html)
 
+    def rows(self):
+        with open(os.path.join(self.d, 'progress-rows.json'), encoding='utf-8') as f:
+            return json.load(f)
+
+    def test_live_rows_use_the_shared_names(self):
+        """0.2.7: the database writes use convert-to-wordpress 0.9.6's collections and fields."""
+        run(self.d, 'now', 'Home: hero', '--next', 'Home: services')
+        run(self.d, 'finding', 'add', '--severity', 'minor', '--page', 'home', '--section', 'hero', '--what',
+            'Gap', '--phase', 'qa run 2')
+        r = self.rows()
+        w = {f'{x["collection"]}/{x["doc_id"]}': x for b in r['batches'] for x in b}
+        self.assertEqual(r['count'], len(w))
+        self.assertEqual(r['existing'], [])
+        self.assertEqual(sorted(w['meta/now']['data']), ['blocked', 'next', 'now', 'nowStarted', 'site', 'static',
+                                                         'target', 'updated', 'waiting'])
+        self.assertEqual(w['meta/now']['data']['now'], 'Home: hero')
+        self.assertEqual(w['phases/plan']['data'], {'id': 'plan', 'name': 'Plan', 'status': 'doing', 'order': 0})
+        self.assertEqual(w['items/home--hero']['data'], {'group': 'Home', 'page': 'home', 'route': '/',
+                                                         'name': 'hero', 'status': 'todo', 'order': 0})
+        self.assertEqual(w['findings/F-001']['data'], {'ref': 'F-001', 'text': 'Gap', 'where': 'home/hero',
+                                                       'run': 'qa run 2', 'severity': 'minor', 'status': 'open'})
+        self.assertTrue(any(k.startswith('log/L') for k in w))
+        self.assertEqual(r['batches'][-1][-1]['collection'], 'meta')  # meta/now last
+        self.assertTrue(all(x['op'] == 'set' for x in w.values()))
+
+    def test_pushed_then_only_changes_with_versions(self):
+        run(self.d, 'url', 'https://claude.ai/artifact/LIVE', '--live')
+        self.assertIn('marked as pushed', run(self.d, 'render', '--pushed'))
+        self.assertEqual(self.rows()['count'], 0)
+        out = run(self.d, 'set', 'home', 'hero', 'building')
+        self.assertRegex(out, r'\((1|2) database writes to push\)')  # meta/now too when the minute moved
+        r = self.rows()
+        self.assertEqual(r['url'], 'https://claude.ai/artifact/LIVE')
+        self.assertIn('items/home--hero', r['existing'])
+        self.assertTrue(set(r['existing']) <= {'items/home--hero', 'meta/now'})
+        run(self.d, 'page', 'home', '--sections', 'hero,services')  # faq removed: its item is deleted
+        r = self.rows()
+        dels = [x['doc_id'] for b in r['batches'] for x in b if x['op'] == 'delete']
+        self.assertEqual(dels, ['home--faq'])
+        self.assertIn('Live page: https://claude.ai/artifact/LIVE', run(self.d, 'status'))
+
+    def test_batches_hold_at_most_50(self):
+        run(self.d, 'page', 'big', '--sections', ','.join(f's{i}' for i in range(70)))
+        r = self.rows()
+        self.assertGreater(r['count'], 70)
+        self.assertTrue(all(len(b) <= 50 for b in r['batches']))
+        self.assertEqual(sum(len(b) for b in r['batches']), r['count'])
+
+    def test_live_page_snapshot_and_db(self):
+        run(self.d, 'finding', 'add', '--severity', 'major', '--what', '</script><b>x</b>')
+        with open(os.path.join(self.d, 'progress-live.html'), encoding='utf-8') as f:
+            html = f.read()
+        snap = html.split('id="snapshot">', 1)[1].split('</script>', 1)[0]
+        self.assertNotIn('</', snap)  # a finding cannot end the data block
+        self.assertEqual(json.loads(snap)['findings/F-001']['text'], '</script><b>x</b>')
+        for part in ("window.claude.use('db')", "['meta', 'phases', 'items', 'findings', 'log']",
+                     'Example &lt;Co> build progress', 'snapshot (no live data in this view)'):
+            self.assertIn(part, html)
+
     def test_phase(self):
         self.assertIn('OK phase setup -> doing', run(self.d, 'phase', 'setup', 'doing'))
         self.assertIn('EXIT', run(self.d, 'phase', 'nope', 'doing'))

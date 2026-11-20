@@ -2,8 +2,9 @@
 """Progress of a Figma build: what is happening now, pages x sections x status, phases, QA findings and a log.
 
 The state lives in <dir>/progress.json (usually <project>/_figma). Every change re-renders <dir>/progress.html, a
-self-contained page (no requests; one tiny inline script turns the update time into "n min ago") that is published
-as a private artifact (or opened locally). Prints one short line per call.
+self-contained page (no requests; one tiny inline script turns the update time into "n min ago") for any tool, and
+the live page with its database writes (progress-live.html, progress-rows.json: live.py), which in Claude is
+published once and then updates itself. Prints one short line per call.
 
   progress.py <dir> init --site "Example" --target wordpress [--figma URL] [--force]
   progress.py <dir> now "<step>" [--next "<step>"] [--waiting "<what>"] [--blocked "<what>"]
@@ -14,9 +15,10 @@ as a private artifact (or opened locally). Prints one short line per call.
   progress.py <dir> finding fix <F-001> --how "re-checked at 1440 and 375"
   progress.py <dir> finding decide <F-001> --why "Figma itself is inconsistent: ..."
   progress.py <dir> log "text"
-  progress.py <dir> url <artifact url>
+  progress.py <dir> url <artifact url> [--live]   (--live: the live page's link)
   progress.py <dir> status            (summary: phases, counts, open findings, next section)
   progress.py <dir> render            (re-render the page; updated = now)
+  progress.py <dir> render --pushed   (after the writes in progress-rows.json went through)
 """
 import argparse
 import html
@@ -24,6 +26,9 @@ import json
 import os
 import sys
 from datetime import datetime
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import live  # noqa: E402  (next to this file)
 
 STATUSES = ['todo', 'building', 'built', 'checked', 'fixed']
 PHASES = [
@@ -55,7 +60,7 @@ def load(d):
     with open(p, encoding='utf-8') as f:
         data = json.load(f)
     data.setdefault('now', {'step': '', 'started': ''})  # 0.2.6 keys; a file made before still loads
-    for k in ('next', 'waiting', 'blocked'):
+    for k in ('next', 'waiting', 'blocked', 'live_url'):  # live_url: 0.2.7
         data.setdefault(k, '')
     return data
 
@@ -67,8 +72,8 @@ def save(d, data, line):
         json.dump(data, f, indent=1, ensure_ascii=False)
         f.write('\n')
     os.replace(tmp, path(d, 'progress.json'))
-    render(d, data)
-    print(line)
+    n = render(d, data)
+    print(line + (f' ({n} database writes to push)' if data.get('live_url') and n else ''))
 
 
 def find_page(data, slug):
@@ -107,7 +112,7 @@ def cmd_init(a):
     if os.path.exists(path(a.dir, 'progress.json')) and not a.force:
         fail('progress.json exists; use --force to start over')
     data = {
-        'site': a.site, 'target': a.target, 'figma': a.figma or '', 'url': '', 'updated': '',
+        'site': a.site, 'target': a.target, 'figma': a.figma or '', 'url': '', 'live_url': '', 'updated': '',
         'now': {'step': 'Plan: inventory and plan', 'started': now()}, 'next': 'the plan OK', 'waiting': '',
         'blocked': '',
         'phases': [{'id': i, 'name': n, 'status': 'todo'} for i, n in PHASES],
@@ -238,8 +243,8 @@ def cmd_log(a):
 
 def cmd_url(a):
     data = load(a.dir)
-    data['url'] = a.url
-    save(a.dir, data, f'OK page url saved: {a.url}')
+    data['live_url' if a.live else 'url'] = a.url
+    save(a.dir, data, f'OK {"live " if a.live else ""}page url saved: {a.url}')
 
 
 def cmd_status(a):
@@ -261,11 +266,17 @@ def cmd_status(a):
     print(f"Open findings: {len(of)} (blocker {sev['blocker']}, major {sev['major']}, minor {sev['minor']})")
     print(f'Next section: {next_section(data)}')
     print(f"Page: {data['url'] or 'not published yet'}")
+    if data['live_url']:
+        print(f"Live page: {data['live_url']}")
     if data['log']:
         print(f"Last log: {data['log'][-1]['at']} {data['log'][-1]['text']}")
 
 
 def cmd_render(a):
+    if a.pushed:
+        load(a.dir)
+        print(f'OK {live.mark_pushed(a.dir)} database writes marked as pushed')
+        return
     data = load(a.dir)
     save(a.dir, data, f'OK rendered {path(a.dir, "progress.html")}')
 
@@ -418,6 +429,7 @@ def render(d, data):
 """
     with open(path(d, 'progress.html'), 'w', encoding='utf-8', newline='\n') as f:
         f.write(page)
+    return live.write(data, CSS, d)
 
 
 def main(argv=None):
@@ -454,8 +466,10 @@ def main(argv=None):
     p.add_argument('text')
     p = sub.add_parser('url')
     p.add_argument('url')
+    p.add_argument('--live', action='store_true')
     sub.add_parser('status')
-    sub.add_parser('render')
+    p = sub.add_parser('render')
+    p.add_argument('--pushed', action='store_true')
     a = ap.parse_args(argv)
     {'init': cmd_init, 'now': cmd_now, 'page': cmd_page, 'set': cmd_set, 'phase': cmd_phase, 'finding': cmd_finding,
      'log': cmd_log, 'url': cmd_url, 'status': cmd_status, 'render': cmd_render}[a.cmd](a)

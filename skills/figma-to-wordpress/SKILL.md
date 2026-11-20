@@ -24,6 +24,7 @@ Paths are relative to this file's folder. Read a reference only when its step co
 | `references/qa.md` | The check script, spec lines, pass marks, long content, the read-only check, the fix loop | First section; end of each phase |
 | `references/progress.md` | progress.json and the progress page | Start; when publishing |
 | `scripts/progress.py` | Now/Next, pages, sections, statuses, findings, log; renders the progress page | Every step |
+| `scripts/live.py` | The live progress page and its database rows (called by progress.py) | Never by hand |
 | `scripts/check.mjs` | Numbers at 1440 and 375 (boxes, pixel diff against Figma, type, colour, images, states) plus an overflow sweep; summary only | Every section, every phase |
 
 WordPress builds also use the **convert-to-wordpress** skill's kit (setup scripts, theme, fields, forms, SEO,
@@ -74,8 +75,10 @@ launch): `references/wordpress.md` says which parts and where to find it. Never 
     in other tools: a line under `## Stops` in notes.md).
 12. **Context watch.** Check your context % (the tool's own meter) before each section. From 50%: finish the
     section, write `_figma/checkpoint.md` (task, go quoted, done so far, state, exact next step), report CHECKPOINT
-    and end the turn. At 75%: the same at the first safe point. `progress.json` and the checkpoint are enough to
-    resume cold.
+    and end the turn. At 75%: the same at the first safe point. Where the thresholds allow, checkpoint at a page
+    or phase end rather than inside a section or a QA run. The checkpoint names the exact next step (the command,
+    the page and section, the route), not "continue QA". `progress.json` and the checkpoint are enough to resume
+    cold.
 13. **Clean code: reusable, simple, no spaghetti.** (Learned 19 Nov 2026: a large Figma build had no bugs, but about
     2,000 one-off values, a colour map copied about nine times, a 399-line section, Figma node IDs and ticket tags in
     hundreds of comments, unused kit files shipped, and PHPCS passing only through ignore comments.)
@@ -95,7 +98,9 @@ apply as well (go quoted in notes.md, stop messages, no Zoho posts). Where they 
 ## Start
 
 1. **Resuming?** If `_figma/` exists: read `_figma/checkpoint.md` (if any) and run `python3 <kit>/scripts/progress.py
-   <project>/_figma status`. Re-check the real state (files, site) against it, then continue from its next step.
+   <project>/_figma status`. Re-check only what can have changed since: the site or dev server answers (and the
+   database, on WordPress), and the files the checkpoint lists as touched (git status or their times). Don't
+   re-read the whole plan or re-run QA; continue from its next step.
 2. **The task.** Read it in full and save it verbatim to `_figma/brief.md` (rule 2). Note its definition of done.
 3. **Intake, once.** One batch of questions, defaults first, only what the task and the profile don't answer:
    target (WordPress unless the task says Next.js), where to build (local folder and address), the Figma file and
@@ -110,6 +115,11 @@ apply as well (go quoted in notes.md, stop messages, no Zoho posts). Where they 
 5. **Plan** in `_figma/plan.md`, about 20 lines: target and stack, pages and templates, the field model in one table
    (WordPress) or the routes and components (Next.js), forms and emails, plugins or packages, design gaps and how
    each is built, decisions taken, blockers. Render and publish the progress page (`references/progress.md`).
+   **All rules at the plan:** every form and where its leads go (the leads portal, or "none: <reason>"), missing
+   content (marked placeholders), the live plugin checklist (WordPress), tracking, redirects, a chat or search.
+   They go in the plan and the plan OK covers them, so no rule arrives mid-build and reopens finished work. A skill
+   update during a task applies at the next phase boundary, never inside a QA run or a fix pass: finish it, then
+   update and log the new version.
 6. **Gate: the plan.** Show the plan in 3 lines plus the progress link and wait for the developer's OK (in a
    Command Center project: the lead's go typed in this chat, quoted in notes.md). Nothing is built before it.
 
@@ -123,8 +133,8 @@ One phase at a time, in this order. Each phase ends with QA that only collects f
 | 2 Pages | Section by section (below): global parts first (header, footer, menus, mobile menu), then the template most pages share, then the other pages; every page editable in ACF; last, the long content test pages | The same order, as components and routes; content in one typed content file per page unless the task names a CMS; last, the long content route |
 | 3 Forms and email | Contact Form 7 forms with the branded emails, spam protection, thank-you page; the leads portal sender (`references/wordpress.md`) | Server actions or a route handler with validation, spam protection, the task's mail service and the leads portal sender (`references/nextjs.md`) |
 | 4 SEO, security, speed | Yoast, schema, redirects, hardening, speed checks | Metadata API, sitemap, robots, JSON-LD, headers, speed checks |
-| Fix | Every open finding in the list, one by one | Same |
-| QA until 0 | Full QA over every route; new findings go to the list; fix and run again until it finds 0 | Same |
+| Fix | One full QA run over every route (its findings join the list), then every open finding fixed, blockers and majors first | Same |
+| QA until 0 | Each fix pass re-checked, scoped to what changed (`references/qa.md` section 10), until a re-check finds 0 | Same |
 | Gate: go-live | The developer's go | Same |
 | Live | Launch, then convert-to-wordpress's live plugin checklist (`references/wordpress.md` > Live); staging gets none of it; live QA; report | Deploy where the task says; live QA; report |
 
@@ -172,9 +182,12 @@ Details: `references/qa.md`.
 4. Publish the progress page (the run's findings with their status), report the phase's stop (rule 11) and go
    straight on to the next phase. No go is needed between phases.
 
-After phase 4: **Fix** every open finding (`progress.py finding fix <id>` after each, with how it was verified;
-publish after each fix batch), then run **full QA** over every route (its findings added with `--phase "qa run
-<n>"`). New findings: add, fix, run again. Repeat until QA finds 0. Then publish the progress page, write the
+After phase 4: **one full QA run** over every route (findings with `--phase "qa run 1"`), then **fix passes**:
+fix every open finding (`progress.py finding fix <id>` after each, with how it was verified; publish after each
+fix batch), then re-check what the pass changed: each fixed item, a full read-only review of the changed files and
+their callers, pixel only on the routes whose rendering changed (`references/qa.md` section 10; WordPress: the
+kit's fix loop). Blockers and majors at once; a later minor outside the changed code goes in the next pass, with no
+new full run. Repeat until a re-check finds 0 and none is open. Then publish the progress page, write the
 pre-launch part of the report, and ask for the go-live gate.
 
 ## Live

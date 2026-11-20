@@ -5,6 +5,33 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.7] - 2026-11-20
+
+The retro of a large conversion build: faster, with the same quality bar.
+
+### Added
+
+- The live progress page (Claude): `scripts/live.py`, the same code and the same database collections and fields as
+  convert-to-wordpress 0.9.6 (`meta/now`, `phases/<id>`, `items/<page>--<section>`, `findings/<id>`,
+  `log/L<hash>`). Every render also writes `progress-live.html` (published once, privately, with the database) and
+  `progress-rows.json` (ArtifactData batches of at most 50, `existing` documents need `if_version`);
+  `progress.py <dir> render --pushed` records them; `progress.py <dir> url <link> --live` saves its link. The open
+  page updates itself. progress.json stays the source; the static page stays for other tools.
+- `references/wordpress.md` > QA: points to convert-to-wordpress 0.9.6's pre-QA self-check and its fix loop.
+
+### Changed
+
+- QA converges (`references/qa.md` section 10, both outputs): one full QA run per site; then fix passes, each
+  re-checking every fixed item, a full review of the changed files and their callers, and pixel only on the routes
+  whose rendering changed; blockers and majors at once; a later minor outside the changed code goes in the next pass
+  with no new full run; a new full run only when a change touched most of the site. Every line is reviewed in full
+  once and again whenever it changes.
+- All rules at the plan: forms and where leads go, placeholders, the live checklist, tracking, redirects; a skill
+  update during a task applies at the next phase boundary.
+- Shorter resumes: checkpoint at a page or phase end where the thresholds allow, with the exact next step; a resume
+  re-checks only what can have changed.
+- progress.json: one addition, `live_url`. A file made before still loads and renders.
+
 ## [0.2.6] - 2026-11-20
 
 ### Changed

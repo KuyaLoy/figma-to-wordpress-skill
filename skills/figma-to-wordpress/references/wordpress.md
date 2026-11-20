@@ -72,6 +72,13 @@ The leads portal: the kit's rule as it is (its `references/forms-email.md` > The
 sender posts each lead form whether the email went out or failed, the code is in from this phase, the endpoint and
 key live only in the live wp-config, and it is off locally and on staging. Never copied here.
 
+## QA: prevent, then converge
+
+- **Prevent:** the kit's pre-QA self-check (`scripts/report/self-check.py`) before every QA run: its
+  `references/phases-and-qa.md` > The self-check before every QA run (0.9.6 or later).
+- **Converge:** one full run per site, then fix passes re-checking what changed, pixel only on the routes the kit's
+  `changed-routes.py` names: its `references/phases-and-qa.md` > The fix loop (`references/qa.md` section 10 here).
+
 ## Phase 4: SEO, security, speed
 
 The kit's SEO and security rules apply (Yoast seeded, schema, canonicals, noindex thank-you, redirects for old URLs
