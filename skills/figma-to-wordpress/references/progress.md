@@ -57,6 +57,11 @@ folded below.
 - **Before a long step** (a QA run, a full pixel run, a fix batch): write `now` first, publish, then start, so the
   page says what the chat is doing. A phase that runs for hours is many units, not one: a page that still shows
   this morning's open findings is wrong.
+- **Running, not stopped:** while a background step runs past the end of a turn (a background command, a subagent,
+  a check), the Now line reads `RUNNING, not stopped: <what>, started HH:MM; I continue by myself when it
+  finishes.` (`progress.py <dir> now "RUNNING, not stopped: ..."`), the same words as the first line of the last
+  message and the recap; the next status replaces it. A real stop (waiting on the developer, blocked, a checkpoint,
+  a usage pause) never says RUNNING.
 - **Claude (Artifact tool): the live page,** below. It updates itself; "publish" means push the rows.
 - **Other tools:** open `_figma/progress.html` in a browser (self-contained: no requests; one tiny inline script
   shows "n min ago"); the developer refreshes it at the same moments. Where Claude has no artifact database,

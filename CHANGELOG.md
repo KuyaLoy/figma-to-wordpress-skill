@@ -5,6 +5,18 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.8] - 2026-11-20
+
+A chat that ends its turn while its own work runs says so, so it never looks stopped (as convert-to-wordpress
+0.9.7).
+
+### Added
+
+- **Running, not stopped:** while a background command, a subagent or a check runs past the end of a turn, the
+  last message's first line, the recap and the progress page's Now line read `RUNNING, not stopped: <what>, started
+  HH:MM; I continue by myself when it finishes.`; a real stop says what it waits on instead (SKILL.md rule 11,
+  references/progress.md > Publishing).
+
 ## [0.2.7] - 2026-11-20
 
 The retro of a large conversion build: faster, with the same quality bar.
