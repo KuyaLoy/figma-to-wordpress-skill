@@ -123,7 +123,7 @@ One phase at a time, in this order. Each phase ends with QA that only collects f
 | Fix | Every open finding in the list, one by one | Same |
 | QA until 0 | Full QA over every route; new findings go to the list; fix and run again until it finds 0 | Same |
 | Gate: go-live | The developer's go | Same |
-| Live | Launch, then on live: a WebP conversion plugin and Contact Form CFDB7; live QA; report | Deploy where the task says; live QA; report |
+| Live | Launch, then convert-to-wordpress's live plugin checklist (`references/wordpress.md` > Live); staging gets none of it; live QA; report | Deploy where the task says; live QA; report |
 
 Only a **blocker** is fixed at once during a phase: the site breaks, or the next phase can't start. Everything
 else waits for the Fix step, so each phase runs straight through.
@@ -174,9 +174,9 @@ progress page, write the pre-launch part of the report, and ask for the go-live 
 
 ## Live
 
-- **WordPress:** follow convert-to-wordpress's launch steps (backup, package, move, checks, rollback). On live, and
-  only there: a WebP conversion plugin and Contact Form CFDB7 (form entries), plus the live plugins its essentials
-  name. The developer types every live password and licence key.
+- **WordPress:** follow convert-to-wordpress's launch steps (backup, package, move, checks, rollback) and its live
+  plugin checklist, the one list (`references/wordpress.md` > Live): live only, staging gets none of it. The
+  developer types every live password and licence key.
 - **Next.js:** deploy where the task says (Vercel unless it names a host); environment variables typed by the
   developer in the host's settings; the domain and redirects as the task says.
 - **Live QA:** `check.mjs` on the live address over every route; forms with one real test lead each, named
@@ -206,5 +206,5 @@ the developer's handoff rules.
 Every page and section `checked` or `fixed` on the progress page; QA's last full run found 0; the code gates pass
 (rule 13: PHPCS, Prettier, ESLint, the self-check, the code review); every page editable
 (WordPress) or every route built from typed content (Next.js); forms and emails proven on live; SEO, tracking and
-the conversion proven on live; WebP plugin and CFDB7 active on a live WordPress; nothing private reachable; the
+the conversion proven on live; the live plugin checklist done on a live WordPress; nothing private reachable; the
 report written and the progress page republished; the stop report sent.

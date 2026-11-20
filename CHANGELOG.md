@@ -5,6 +5,19 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-11-20
+
+### Changed
+
+- Live: the WordPress rules are the same as convert-to-wordpress's, so the skill points to its live plugin checklist,
+  the one list (its `assets/launch/RUNBOOK.template.md` section 4 and `references/launch.md` > After the installer),
+  instead of naming "a WebP conversion plugin and Contact Form CFDB7": the profile's live plugins from the
+  developer's plugin folder (versions checked before go-live), Contact Form CFDB7, Converter for Media, the
+  reCAPTCHA v3 keys and the cache plugin (LiteSpeed Cache by default). Staging gets none of it. SKILL.md's Live row,
+  Live section and "Done means", and `references/wordpress.md` > Live.
+- `references/wordpress.md` step 4: ACF PRO is activated by the profile's `acf_pro_license`, written only into local
+  wp-config files by the kit's `make-wp-config.py`, not pasted by the developer.
+
 ## [0.2.2] - 2026-11-19
 
 Starter rule and code quality, from a read-only audit of a large Figma build (no bugs, but about 2,000 one-off

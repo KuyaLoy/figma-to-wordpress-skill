@@ -26,9 +26,10 @@ with its source and size, unless the developer's profile says otherwise):
 3. Installed by `scripts/setup/install-wp.py <wp_root> --url <local url> --profile <kit>/profile.local.json` with
    the developer's default local admin from that profile (its `local_admin` entry). Read at run time, used only on
    this local site, never written to any file of the build. No default in the profile: the developer types it.
-4. Plugins: ACF PRO from the developer's zip (`plugin_zips.acf_pro`; the developer pastes the licence into
-   wp-config), Contact Form 7, Yoast SEO, and the profile's `required` extra plugins. Not locally: the WebP
-   conversion plugin and Contact Form CFDB7 (they go on live at launch).
+4. Plugins: ACF PRO from the developer's zip (`plugin_zips.acf_pro`), activated by the profile's
+   `acf_pro_license`, which the kit's `make-wp-config.py` writes only into local wp-config files (its
+   `references/setup.md` > Starter plugins); Contact Form 7, Yoast SEO, and the profile's `required` extra
+   plugins. Nothing from the live plugin checklist locally (Live, below).
 5. The theme, by the starter rule (the plan states the choice and one reason; the developer can override; the
    task's word wins). A Figma design is never a Tailwind source, so:
    - **clearly easier in Tailwind** (a design system with repeating tokens: Figma variables or styles, many
@@ -78,5 +79,8 @@ set it up after the build is final, check the design is unchanged at 1440 and 37
 ## Live
 
 The kit's launch steps, one at a time, with the developer doing every step that needs a password or a payment.
-After the move: the WebP conversion plugin (Converter for Media unless the developer names another) and Contact
-Form CFDB7 installed and active on live; the kit's live plugins; search engines allowed; debug off; live QA.
+After the move: **the live plugin checklist**, the one list, in the kit's `assets/launch/RUNBOOK.template.md`
+section 4 (and `references/launch.md` > After the installer); never copied here. In short: the profile's live
+plugins from the developer's plugin folder (each zip's version checked before go-live), Contact Form CFDB7,
+Converter for Media, the reCAPTCHA v3 keys and the cache plugin (LiteSpeed Cache unless the profile names another).
+Live only: staging gets none of it and stays noindex. Then search engines allowed, debug off, live QA.
