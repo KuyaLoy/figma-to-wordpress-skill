@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.9] - 2026-11-20
+
+The chat's state shows in its title, so the sidebar shows what is working (as convert-to-wordpress 0.9.8).
+
+### Added
+
+- **State in the title** (Claude desktop app; other tools skip it): `▶ RUNNING | <title>`, `⏸ WAITING on <who> |
+  <title>`, `✋ BLOCKED | <title>`, `✓ DONE | <title>`, set with `set_session_title` "self", one call per state
+  change, next to the RUNNING line (SKILL.md rule 11, references/progress.md > Publishing).
+
 ## [0.2.8] - 2026-11-20
 
 A chat that ends its turn while its own work runs says so, so it never looks stopped (as convert-to-wordpress

@@ -62,6 +62,11 @@ folded below.
   finishes.` (`progress.py <dir> now "RUNNING, not stopped: ..."`), the same words as the first line of the last
   message and the recap; the next status replaces it. A real stop (waiting on the developer, blocked, a checkpoint,
   a usage pause) never says RUNNING.
+- **The title:** in the Claude desktop app the chat also keeps its state at the front of its own title
+  (`set_session_title` with "self", one call per state change, the rest of the title unchanged; other tools skip
+  it): `▶ RUNNING | <title>` while it or its own background work runs (a check, a build, a subagent),
+  `⏸ WAITING on <who> | <title>` when it waits on the developer, Command Center or the client, `✋ BLOCKED |
+  <title>`, `✓ DONE | <title>` at done (and in review). Never for anything else, never polling.
 - **Claude (Artifact tool): the live page,** below. It updates itself; "publish" means push the rows.
 - **Other tools:** open `_figma/progress.html` in a browser (self-contained: no requests; one tiny inline script
   shows "n min ago"); the developer refreshes it at the same moments. Where Claude has no artifact database,

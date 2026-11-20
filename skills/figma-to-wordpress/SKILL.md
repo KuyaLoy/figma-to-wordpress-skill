@@ -75,7 +75,11 @@ launch): `references/wordpress.md` says which parts and where to find it. Never 
     in other tools: a line under `## Stops` in notes.md). **Running, not stopped:** a turn that ends while its own
     work keeps running (a background command, a subagent, a check) starts its last message, its recap and the
     progress page's Now line with `RUNNING, not stopped: <what>, started HH:MM; I continue by myself when it
-    finishes.` (the time from the clock); a real stop never says RUNNING, it says what it waits on.
+    finishes.` (the time from the clock); a real stop never says RUNNING, it says what it waits on. **The title
+    too** (Claude desktop app: `set_session_title` with "self"; other tools skip it): the chat keeps its state at
+    the front of its own title, one call when the state changes, the rest unchanged: `▶ RUNNING | <title>` while it
+    or its own background work runs, `⏸ WAITING on <who> | <title>`, `✋ BLOCKED | <title>`, `✓ DONE | <title>`
+    (also in review); never for anything else.
 12. **Context watch.** Check your context % (the tool's own meter) before each section. From 50%: finish the
     section, write `_figma/checkpoint.md` (task, go quoted, done so far, state, exact next step), report CHECKPOINT
     and end the turn. At 75%: the same at the first safe point. Where the thresholds allow, checkpoint at a page
