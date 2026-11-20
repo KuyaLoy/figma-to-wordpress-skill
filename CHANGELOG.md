@@ -5,6 +5,23 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-11-20
+
+### Added
+
+- The leads portal, mandatory on a live site with a lead form (a site without one says so in the plan): each lead
+  is also posted to the portal whether the email went out or failed; the code is in from phase 3, the endpoint and
+  key go in on live only, a GET check (stores nothing) proves them before the switch, then one TEST lead per form.
+  The portal's address comes from the developer's profile or the task, never from the skill.
+- WordPress: `references/wordpress.md` points to convert-to-wordpress 0.9.4's rule (its `references/forms-email.md`
+  > The leads portal) in phase 3, and the live checklist summary names its leads portal item and `leads-check.py`.
+- Next.js: `references/nextjs.md` phase 3 adds a server-only `sendLead()` (`form`, `idempotency_key`, the fields,
+  `source_url`, `ip_address`, `gclid`, `fbp`, `fbc`; Bearer key; 5 second timeout; 200 and 202 delivered; a failure
+  logged with the status only, never blocking the visitor), off unless `LEADS_ENDPOINT` and `LEADS_WRITE_KEY` are
+  set, which they are only for Production on the host. Live: the GET check, then one TEST lead per form.
+- SKILL.md: the phase 3 row, a Leads portal item under Live, Live QA (each test lead reaches the email and the
+  portal) and "Done means".
+
 ## [0.2.4] - 2026-11-20
 
 ### Changed

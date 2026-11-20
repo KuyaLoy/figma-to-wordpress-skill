@@ -68,6 +68,10 @@ the form as the design shows it, branded HTML emails for the notification and th
 thank-you redirect). The form's look comes from the Figma spec: fields, labels, errors and success states (states
 Figma lacks are built from the design system and listed).
 
+The leads portal: the kit's rule as it is (its `references/forms-email.md` > The leads portal, 0.9.4 or later): its
+sender posts each lead form whether the email went out or failed, the code is in from this phase, the endpoint and
+key live only in the live wp-config, and it is off locally and on staging. Never copied here.
+
 ## Phase 4: SEO, security, speed
 
 The kit's SEO and security rules apply (Yoast seeded, schema, canonicals, noindex thank-you, redirects for old URLs
@@ -84,5 +88,7 @@ The kit's launch steps, one at a time, with the developer doing every step that 
 After the move: **the live plugin checklist**, the one list, in the kit's `assets/launch/RUNBOOK.template.md`
 section 4 (and `references/launch.md` > After the installer); never copied here. In short: the profile's live
 plugins from the developer's plugin folder (each zip's version checked before go-live), Contact Form CFDB7,
-Converter for Media, the reCAPTCHA v3 keys and the cache plugin (LiteSpeed Cache unless the profile names another).
+Converter for Media, the reCAPTCHA v3 keys, the cache plugin (LiteSpeed Cache unless the profile names another)
+and the leads portal item (the project in the portal admin, endpoint and key pasted into the live wp-config, the
+kit's `scripts/report/leads-check.py` GET check, then one TEST lead per form in the portal).
 Live only: staging gets none of it and stays noindex. Then search engines allowed, debug off, live QA.

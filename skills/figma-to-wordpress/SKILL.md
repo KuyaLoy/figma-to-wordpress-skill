@@ -120,7 +120,7 @@ One phase at a time, in this order. Each phase ends with QA that only collects f
 |---|---|---|
 | 1 Setup | Local WordPress in one go, the plugins and the theme (`references/wordpress.md`); tokens, fonts and base styles from `tokens.json` | The app, Tailwind tokens from `tokens.json`, fonts with `next/font` (`references/nextjs.md`) |
 | 2 Pages | Section by section (below): global parts first (header, footer, menus, mobile menu), then the template most pages share, then the other pages; every page editable in ACF; last, the long content test pages | The same order, as components and routes; content in one typed content file per page unless the task names a CMS; last, the long content route |
-| 3 Forms and email | Contact Form 7 forms with the branded emails, spam protection, thank-you page | Server actions or a route handler with validation, spam protection and the task's mail service |
+| 3 Forms and email | Contact Form 7 forms with the branded emails, spam protection, thank-you page; the leads portal sender (`references/wordpress.md`) | Server actions or a route handler with validation, spam protection, the task's mail service and the leads portal sender (`references/nextjs.md`) |
 | 4 SEO, security, speed | Yoast, schema, redirects, hardening, speed checks | Metadata API, sitemap, robots, JSON-LD, headers, speed checks |
 | Fix | Every open finding in the list, one by one | Same |
 | QA until 0 | Full QA over every route; new findings go to the list; fix and run again until it finds 0 | Same |
@@ -181,8 +181,12 @@ progress page, write the pre-launch part of the report, and ask for the go-live 
   developer types every live password and licence key.
 - **Next.js:** deploy where the task says (Vercel unless it names a host); environment variables typed by the
   developer in the host's settings; the domain and redirects as the task says.
+- **Leads portal** (both targets): mandatory on a live site with a lead form; the code is in from phase 3, the
+  endpoint and key go in on live only (typed by the developer), the GET check passes before the switch. A site
+  without a lead form says so in the plan. The portal's address comes from the developer's profile or the task.
 - **Live QA:** `check.mjs` on the live address over every route; forms with one real test lead each, named
-  `TEST <developer> - please ignore`, after the developer agrees; tracking and the conversion fire; nothing from
+  `TEST <developer> - please ignore`, after the developer agrees, each reaching the email and the leads portal
+  (its admin shows the count per form); tracking and the conversion fire; nothing from
   local left (search engines allowed, debug off, no `_figma/` or private files reachable, the long content test
   pages removed: `references/qa.md`).
 
@@ -206,7 +210,7 @@ the developer's handoff rules.
 ## Done means
 
 Every page and section `checked` or `fixed` on the progress page; QA's last full run found 0; the code gates pass
-(rule 13: PHPCS, Prettier, ESLint, the self-check, the code review); every page editable
-(WordPress) or every route built from typed content (Next.js); forms and emails proven on live; SEO, tracking and
-the conversion proven on live; the live plugin checklist done on a live WordPress; nothing private reachable; the
+(rule 13: PHPCS, Prettier, ESLint, the self-check, the code review); every page editable (WordPress) or every
+route built from typed content (Next.js); forms, emails and the leads portal proven on live; SEO, tracking and the
+conversion proven on live; the live plugin checklist done on a live WordPress; nothing private reachable; the
 report written and the progress page republished; the stop report sent.

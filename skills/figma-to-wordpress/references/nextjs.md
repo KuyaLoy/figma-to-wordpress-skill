@@ -41,6 +41,19 @@ WordPress; only the stack differs.
 - Mail through the task's service (Resend, SMTP, the client's provider). HTML email built from the design's colours
   and logo; a plain-text part too. Redirect to `/thank-you` (noindex) where the conversion fires.
 - Without JavaScript the form still posts (progressive enhancement with a Server Action).
+- **The leads portal** (mandatory on live for every lead form; a site without one says so in the plan): a
+  server-only `sendLead()` in `src/lib/leads.ts` (`import 'server-only'`), called from each form's action
+  **whether the mail service succeeded or failed**, once per submission:
+  - `POST` JSON to `process.env.LEADS_ENDPOINT` with `Authorization: Bearer ${process.env.LEADS_WRITE_KEY}`:
+    `form` (the form's name), a unique `idempotency_key` (`crypto.randomUUID()`), the posted fields, `source_url`,
+    `ip_address` (from `x-forwarded-for`), `gclid`, `fbp`, `fbc` (from the query string or the `_fbp`/`_fbc`
+    cookies). Never files, consent, the honeypot or sensitive fields (health, dates of birth).
+  - A 5 second timeout (`AbortSignal.timeout(5000)`); 200 and 202 count as delivered; any failure is logged with the
+    status only and never blocks the visitor or the thank-you page.
+  - Off unless both variables are set: they are set only for the live (Production) environment on the host, never
+    in `.env.local` or preview deployments. `.env.example` lists the two names only.
+  - The portal's own Next.js example (in its admin) is the reference; the portal's address comes from the
+    developer's profile or the task, never from this skill.
 
 ## Phase 4: SEO, security, speed
 
@@ -56,4 +69,8 @@ WordPress; only the stack differs.
 ## Live
 
 Deploy where the task says (Vercel by default: the developer connects the repo and sets the environment variables).
-Domain and redirects as the task says. Live QA as in SKILL.md.
+Domain and redirects as the task says. The leads portal: the project in the portal admin (domain = the live domain),
+`LEADS_ENDPOINT` and `LEADS_WRITE_KEY` set for Production only, then the GET check, which stores nothing (the
+convert-to-wordpress kit's `scripts/report/leads-check.py` works for any site; the developer runs it with the key
+from the environment or its hidden prompt), then one TEST lead per form after the developer agrees. Live QA as in
+SKILL.md.
