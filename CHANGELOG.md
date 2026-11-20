@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-11-20
+
+### Changed
+
+- The cache plugin, as convert-to-wordpress: every live WordPress site gets the live checklist's cache plugin
+  (LiteSpeed Cache unless the profile's `cache_plugin` names another), never locally or on staging. A heavy design
+  only uses more of its options on live (page and browser cache first, then CSS and JS one at a time, each with a
+  parity check), never a second speed plugin. SKILL.md rule 6 and `references/wordpress.md` > Phase 4, pointing to
+  the kit's `references/seo-security.md` > Performance.
+
 ## [0.2.3] - 2026-11-20
 
 ### Changed

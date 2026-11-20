@@ -53,7 +53,9 @@ launch): `references/wordpress.md` says which parts and where to find it. Never 
    canonicals, Open Graph, sitemap, schema where it fits). Speed built in from the first section: sized responsive
    images, the LCP image preloaded and never lazy, the rest lazy, self-hosted fonts with `swap`, little JavaScript,
    loaded only where used. PageSpeed Insights aims at a pass but is not a must; the design is never changed for a
-   score. A heavy design (video, big imagery, motion) gets a speed plugin on WordPress (`references/wordpress.md`).
+   score. Every live WordPress site gets the live checklist's cache plugin (LiteSpeed Cache unless the profile
+   names another); a heavy design only uses more of its options, never a second speed plugin
+   (`references/wordpress.md`).
 7. **Assets exactly as in Figma.** Every image and SVG exported from Figma into the project, in its exact slot, at
    2x for raster images (sharp at DPR 2), people never cut by a crop. No temporary Figma asset URLs left in code.
    Edits a Figma export can't give (background removal, extending an image) only with a tool the developer has,

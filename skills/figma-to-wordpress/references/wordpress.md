@@ -72,9 +72,11 @@ Figma lacks are built from the design system and listed).
 
 The kit's SEO and security rules apply (Yoast seeded, schema, canonicals, noindex thank-you, redirects for old URLs
 if the site replaces one, hardening, private files 403). Speed: built in from the first section (rule 6 of
-SKILL.md). A heavy design (background video, large imagery, many animations) may get one speed plugin that fits
-the host (for example LiteSpeed Cache on a LiteSpeed host, otherwise a cache and asset plugin the developer uses);
-set it up after the build is final, check the design is unchanged at 1440 and 375, and list it.
+SKILL.md). The cache plugin is the live checklist's (LiteSpeed Cache unless the profile's `cache_plugin` names
+another), on every live site and never locally or on staging. A heavy design (background video, large imagery,
+many animations) only uses more of its options on live, never a second speed plugin: page and browser cache first,
+then CSS and JS options one at a time, each followed by a parity check (the kit's `references/seo-security.md` >
+Performance).
 
 ## Live
 
