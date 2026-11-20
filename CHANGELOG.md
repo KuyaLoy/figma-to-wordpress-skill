@@ -5,6 +5,23 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-11-20
+
+### Changed
+
+- The progress page shows what is happening and stays current, the same page and keys as convert-to-wordpress
+  0.9.5: at the top, in large type, Now (the step and the time it started), Next, anything waiting or blocked, and
+  the time the page was rendered ("n min ago" from one tiny inline script). New command
+  `progress.py <dir> now "<step>" [--next ...] [--waiting ...] [--blocked ...]`.
+- Every QA finding is listed with its status (open, fixed, decided), with counts per status and per QA run (the
+  finding's `phase`; in the QA-until-0 loop `--phase "qa run <n>"`), open first, fixed and decided folded with
+  how each was fixed or why it was kept.
+- Publishing: at every unit end (the plan, each page built, each QA run collected, each fix batch, QA at 0, live)
+  and every stop, and before a long step (write `now`, publish, then start); the same link as before. Replaces
+  "only at the plan, once per finished page and at each phase end".
+- progress.json: additions only, `now` (`step`, `started`), `next`, `waiting`, `blocked`; `updated` is the time of
+  the last write or render. A file made before 0.2.6 still loads and renders. `render` now saves the update time.
+
 ## [0.2.5] - 2026-11-20
 
 ### Added

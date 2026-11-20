@@ -23,7 +23,7 @@ Paths are relative to this file's folder. Read a reference only when its step co
 | `references/nextjs.md` | The Next.js target: stack, tokens, images, fonts, metadata, deploy | Target Next.js |
 | `references/qa.md` | The check script, spec lines, pass marks, long content, the read-only check, the fix loop | First section; end of each phase |
 | `references/progress.md` | progress.json and the progress page | Start; when publishing |
-| `scripts/progress.py` | Pages, sections, statuses, findings, log; renders the progress page | Every section |
+| `scripts/progress.py` | Now/Next, pages, sections, statuses, findings, log; renders the progress page | Every step |
 | `scripts/check.mjs` | Numbers at 1440 and 375 (boxes, pixel diff against Figma, type, colour, images, states) plus an overflow sweep; summary only | Every section, every phase |
 
 WordPress builds also use the **convert-to-wordpress** skill's kit (setup scripts, theme, fields, forms, SEO,
@@ -69,8 +69,9 @@ launch): `references/wordpress.md` says which parts and where to find it. Never 
     cropped to the problem. Figma renders go to disk by URL, never into the chat.
 11. **Never stop silently.** Every turn that ends without the work going on (plan ready, a phase's QA done, a
     checkpoint, a block, waiting for a go) ends with a short stop report: what was done, the state, decisions taken,
-    and last `Next: <step> — waiting on <who>`. In a Command Center project it also goes to Command Center (in the
-    Claude desktop app: a message to the parent chat; in other tools: a line under `## Stops` in notes.md).
+    and last `Next: <step> — waiting on <who>`. The progress page says the same (`progress.py now`, publish). In a
+    Command Center project it also goes to Command Center (in the Claude desktop app: a message to the parent chat;
+    in other tools: a line under `## Stops` in notes.md).
 12. **Context watch.** Check your context % (the tool's own meter) before each section. From 50%: finish the
     section, write `_figma/checkpoint.md` (task, go quoted, done so far, state, exact next step), report CHECKPOINT
     and end the turn. At 75%: the same at the first safe point. `progress.json` and the checkpoint are enough to
@@ -134,7 +135,7 @@ else waits for the Fix step, so each phase runs straight through.
 
 For every section, in page order:
 
-1. `progress.py <dir> set <page> <section> building`.
+1. `progress.py <dir> set <page> <section> building` and `progress.py <dir> now "<page>: <section>" --next ...`.
 2. **Figma:** `get_design_context` for that section's desktop node and its mobile node only. Sparse answer:
    request its visible child nodes in one parallel batch. Save the values to `_figma/spec/<page>--<section>.md`
    (sizes, spacing, type, colours as token names, assets, interactions, copy) with the lines the check reads:
@@ -149,7 +150,7 @@ For every section, in page order:
    <slug>` (1440 and 375: box, pixel diff, elements, states). Make your own mismatches match now: that is
    building, not the fix loop. Stop when the section passes (rule 3); open the diff image only if it fails.
 5. `progress.py <dir> set <page> <section> built` (one write per section). When the page's last section is built:
-   publish the progress page once (`references/progress.md`).
+   publish the progress page (`references/progress.md`: at every unit end and every stop).
 
 Statuses: `todo` > `building` > `built` > `checked` (QA passed on it) > `fixed` (it had findings; all fixed and
 re-checked). A section with an open finding shows it on the page.
@@ -158,21 +159,23 @@ re-checked). A section with an open finding shows it on the page.
 
 Details: `references/qa.md`.
 
-1. `check.mjs` over the phase's routes (and the long content test pages from phase 2) at 1440 and 375 plus the
-   overflow sweep (320 to 1920). It writes the full result to `_figma/qa/` and prints a summary. Then the code
-   gates (rule 13): PHPCS, Prettier, ESLint and the self-check (`references/qa.md`).
+1. First `progress.py now "QA <phase>"` and publish (a QA run is a long step). Then `check.mjs` over the phase's
+   routes (and the long content test pages from phase 2) at 1440 and 375 plus the overflow sweep (320 to 1920).
+   It writes the full result to `_figma/qa/` and prints a summary. Then the code gates (rule 13): PHPCS, Prettier,
+   ESLint and the self-check (`references/qa.md`).
 2. One fresh read-only check (in Claude Code: a subagent on a cheaper model such as Sonnet; in other tools: a new
    chat told to only read): the check's numbers first, images only for its failures, then the phase's checklist,
    then a code review of the files the phase changed (`references/qa.md`). Every phase, not only the first ones.
    It changes nothing and returns findings.
 3. Every finding goes into the list once: `progress.py <dir> finding add ...` (severity, page, section, what,
    expected from Figma, measured). Duplicates are merged. Nothing is fixed now, except a blocker.
-4. Publish the progress page once, report the phase's stop (rule 11) and go straight on to the next phase. No go
-   is needed between phases.
+4. Publish the progress page (the run's findings with their status), report the phase's stop (rule 11) and go
+   straight on to the next phase. No go is needed between phases.
 
-After phase 4: **Fix** every open finding (`progress.py finding fix <id>` after each, with how it was verified),
-then run **full QA** over every route. New findings: add, fix, run again. Repeat until QA finds 0. Then render the
-progress page, write the pre-launch part of the report, and ask for the go-live gate.
+After phase 4: **Fix** every open finding (`progress.py finding fix <id>` after each, with how it was verified;
+publish after each fix batch), then run **full QA** over every route (its findings added with `--phase "qa run
+<n>"`). New findings: add, fix, run again. Repeat until QA finds 0. Then publish the progress page, write the
+pre-launch part of the report, and ask for the go-live gate.
 
 ## Live
 

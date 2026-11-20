@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Progress of a Figma build: pages x sections x status, phases, QA findings and a short log.
+"""Progress of a Figma build: what is happening now, pages x sections x status, phases, QA findings and a log.
 
 The state lives in <dir>/progress.json (usually <project>/_figma). Every change re-renders <dir>/progress.html, a
-self-contained page that is published as a private artifact (or opened locally). Prints one short line per call.
+self-contained page (no requests; one tiny inline script turns the update time into "n min ago") that is published
+as a private artifact (or opened locally). Prints one short line per call.
 
   progress.py <dir> init --site "Example" --target wordpress [--figma URL] [--force]
+  progress.py <dir> now "<step>" [--next "<step>"] [--waiting "<what>"] [--blocked "<what>"]
   progress.py <dir> page <slug> --name "Home" --route / --sections hero,services,faq [--desktop 1:2] [--mobile 3:4]
   progress.py <dir> set <page|*> <section|*> <todo|building|built|checked|fixed>
   progress.py <dir> phase <plan|setup|pages|forms|seo|fix|qa|golive|live> <todo|doing|done>
@@ -14,7 +16,7 @@ self-contained page that is published as a private artifact (or opened locally).
   progress.py <dir> log "text"
   progress.py <dir> url <artifact url>
   progress.py <dir> status            (summary: phases, counts, open findings, next section)
-  progress.py <dir> render            (only re-render the page)
+  progress.py <dir> render            (re-render the page; updated = now)
 """
 import argparse
 import html
@@ -51,7 +53,11 @@ def load(d):
     if not os.path.exists(p):
         fail(f'no progress.json in {d}: run "init" first')
     with open(p, encoding='utf-8') as f:
-        return json.load(f)
+        data = json.load(f)
+    data.setdefault('now', {'step': '', 'started': ''})  # 0.2.6 keys; a file made before still loads
+    for k in ('next', 'waiting', 'blocked'):
+        data.setdefault(k, '')
+    return data
 
 
 def save(d, data, line):
@@ -102,11 +108,24 @@ def cmd_init(a):
         fail('progress.json exists; use --force to start over')
     data = {
         'site': a.site, 'target': a.target, 'figma': a.figma or '', 'url': '', 'updated': '',
+        'now': {'step': 'Plan: inventory and plan', 'started': now()}, 'next': 'the plan OK', 'waiting': '',
+        'blocked': '',
         'phases': [{'id': i, 'name': n, 'status': 'todo'} for i, n in PHASES],
         'pages': [], 'findings': [], 'log': [{'at': now(), 'text': 'Started.'}],
     }
     data['phases'][0]['status'] = 'doing'
     save(a.dir, data, f'OK init {a.site} ({a.target})')
+
+
+def cmd_now(a):
+    data = load(a.dir)
+    step = a.step.strip()
+    if not step:
+        fail('the step is required: what the chat is doing now')
+    if step != data['now'].get('step'):  # the same step again keeps its start time
+        data['now'] = {'step': step, 'started': now()}
+    data['next'], data['waiting'], data['blocked'] = a.next or '', a.waiting or '', a.blocked or ''
+    save(a.dir, data, f'OK now: {step}' + (f'. Next: {a.next}' if a.next else ''))
 
 
 def cmd_page(a):
@@ -231,6 +250,12 @@ def cmd_status(a):
     of = open_findings(data)
     sev = {s: sum(1 for f in of if f['severity'] == s) for s in SEVERITIES}
     print(f"{data['site']} ({data['target']}) updated {data['updated']}")
+    if data['now']['step']:
+        print(f"Now: {data['now']['step']} (started {data['now']['started'][11:16]})"
+              + (f" | Next: {data['next']}" if data['next'] else ''))
+    for k in ('waiting', 'blocked'):
+        if data[k]:
+            print(f'{k.title()}: {data[k]}')
     print(f'Phases: {phases}')
     print(f'Sections: {total} | ' + ' '.join(f'{k} {v}' for k, v in c.items()))
     print(f"Open findings: {len(of)} (blocker {sev['blocker']}, major {sev['major']}, minor {sev['minor']})")
@@ -242,8 +267,7 @@ def cmd_status(a):
 
 def cmd_render(a):
     data = load(a.dir)
-    render(a.dir, data)
-    print(f'OK rendered {path(a.dir, "progress.html")}')
+    save(a.dir, data, f'OK rendered {path(a.dir, "progress.html")}')
 
 
 # ---------- the page ----------
@@ -273,12 +297,57 @@ vertical-align:top}th{font-size:13px;color:var(--mute);font-weight:500}.chips{di
 .chip.has-open{outline:2px solid var(--open);outline-offset:1px}.sev{font-weight:600}.sev.blocker,.sev.major{
 color:var(--open)}.legend{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.scroll{overflow-x:auto}
 ul.log{list-style:none;padding:0;margin:0}ul.log li{padding:4px 0;border-top:1px solid var(--line)}
-@media (max-width:640px){td,th{padding:6px 4px}.hide-sm{display:none}}
+.now{margin-top:14px;border-left:6px solid var(--building)}.now .big{font-size:22px;line-height:1.35}
+.now .lbl{display:inline-block;min-width:64px;font-size:13px;color:var(--mute);text-transform:uppercase;
+letter-spacing:.04em}.now .upd{font-size:20px;font-weight:600;margin-top:8px}.st{font-size:12px;padding:2px 8px;
+border-radius:999px;color:var(--chipink);white-space:nowrap}.st.open{background:var(--open)}.st.fixed{
+background:var(--fixed)}.st.decided{background:var(--todo);color:var(--ink)}.counts{display:flex;flex-wrap:wrap;
+gap:8px;margin:0 0 10px}details summary{cursor:pointer;padding:8px 0}
+@media (max-width:640px){td,th{padding:6px 4px}.hide-sm{display:none}.now .big{font-size:18px}}
 """
+FSTATES = ('open', 'fixed', 'decided')
+MONTHS = ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+FHEAD = ('<tr><th>ID</th><th>Status</th><th>Severity</th><th class="hide-sm">QA run</th><th>Where</th>'
+         '<th>What</th></tr>')
+AGO = ("<script>(function(){var t=document.getElementById('ago'),d=new Date(t.getAttribute('data-at'));"
+       "function f(){var m=Math.floor((Date.now()-d)/60000);if(isNaN(m)||m<0)return;t.textContent='('+(m<1?"
+       "'just now':m<60?m+' min ago':Math.floor(m/60)+' h '+m%60+' min ago')+')'}f();setInterval(f,60000)})();"
+       "</script>")
 
 
 def e(s):
     return html.escape(str(s or ''))
+
+
+def hm_time(stamp):
+    """'2026-11-20T14:05+08:00' -> '20 Nov 2026 14:05'."""
+    try:
+        t = datetime.fromisoformat(stamp)
+    except (TypeError, ValueError):
+        return (stamp or '').replace('T', ' ')
+    return f'{t.day} {MONTHS[t.month - 1]} {t.year} {t:%H:%M}'
+
+
+def frow(f):
+    st = f['status'] if f['status'] in FSTATES else 'open'
+    notes = (('expected', 'Figma'), ('measured', 'Measured'), ('note', 'Fixed' if st == 'fixed' else 'Decided'))
+    extra = ''.join(f'<br><span class="mute">{label}: {e(f.get(k))}</span>' for k, label in notes if f.get(k))
+    return (f'<tr><td>{e(f["id"])}</td><td><span class="st {st}">{e(f["status"])}</span></td>'
+            f'<td class="sev {e(f["severity"])}">{e(f["severity"])}</td><td class="hide-sm">{e(f["phase"])}</td>'
+            f'<td>{e(f["page"])}{"/" + e(f["section"]) if f["section"] else ""}</td><td>{e(f["what"])}{extra}</td>'
+            '</tr>')
+
+
+def now_card(data):
+    n = data['now']
+    out = (f'<div class="big"><span class="lbl">Now</span> <b>{e(n["step"]) or "nothing written"}</b>'
+           + (f' <span class="mute">started {e(n["started"][11:16])}</span>' if n['started'] else '') + '</div>'
+           + (f'<div class="big"><span class="lbl">Next</span> {e(data["next"])}</div>' if data['next'] else ''))
+    out += ''.join(f'<div><span class="lbl">{label}</span> {e(data[k])}</div>'
+                   for k, label in (('waiting', 'Waiting'), ('blocked', 'Blocked'))
+                   if data[k] and data[k].lower() not in ('nothing', 'none', 'no'))
+    return out + (f'<div class="upd">Updated {e(hm_time(data["updated"]))} '
+                  f'<span class="mute" id="ago" data-at="{e(data["updated"])}"></span></div>')
 
 
 def render(d, data):
@@ -302,13 +371,22 @@ def render(d, data):
         rows.append(f'<tr><td><b>{e(p["name"])}</b><br><span class="mute">{e(p["route"])}</span></td>'
                     f'<td><div class="chips">{"".join(chips)}</div></td>'
                     f'<td class="hide-sm">{pdone}/{len(p["sections"])}</td></tr>')
-    frows = ''.join(
-        f'<tr><td>{e(f["id"])}</td><td class="sev {e(f["severity"])}">{e(f["severity"])}</td>'
-        f'<td>{e(f["page"])}{"/" + e(f["section"]) if f["section"] else ""}</td><td>{e(f["what"])}'
-        f'{"<br><span class=mute>Figma: " + e(f["expected"]) + "</span>" if f["expected"] else ""}'
-        f'{"<br><span class=mute>Measured: " + e(f["measured"]) + "</span>" if f["measured"] else ""}</td></tr>'
-        for f in of)
+    frows = ''.join(frow(f) for f in sorted(of, key=lambda f: SEVERITIES.index(f['severity'])
+                                            if f['severity'] in SEVERITIES else 3))
     closed = [f for f in data['findings'] if f['status'] != 'open']
+    crows = ''.join(frow(f) for f in closed)
+    fcount = {s: sum(1 for f in data['findings'] if f['status'] == s) for s in FSTATES}
+    fcounts = ' &middot; '.join(f'<span class="st {s}">{fcount[s]} {s}</span>' for s in FSTATES)
+    runs = {}  # the phase or QA run that found each finding ("pages", "qa run 2"); first seen first
+    for f in data['findings']:
+        st = f['status'] if f['status'] in FSTATES else 'open'
+        runs.setdefault(f['phase'] or '?', {s: 0 for s in FSTATES})[st] += 1
+    run_rows = ''.join(f'<tr><td>{e(k)}</td><td>{sum(v.values())}</td><td>{v["open"]}</td><td>{v["fixed"]}</td>'
+                       f'<td>{v["decided"]}</td></tr>' for k, v in runs.items())
+    run_table = ('<table><tr><th>QA run</th><th>Found</th><th>Open</th><th>Fixed</th><th>Decided</th></tr>'
+                 f'{run_rows}</table>' if run_rows else '')
+    folded = (f'<details><summary>Fixed and decided ({len(closed)})</summary><table>{FHEAD}{crows}</table>'
+              '</details>' if closed else '')
     log = ''.join(f'<li><span class="mute">{e(x["at"][:16].replace("T", " "))}</span> {e(x["text"])}</li>'
                   for x in reversed(data['log'][-25:]))
     title = f'{data["site"]} build progress'
@@ -316,7 +394,8 @@ def render(d, data):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(title)}</title><style>{CSS}</style></head><body><main>
 <h1>{e(title)}</h1>
-<div class="mute">Target: {e(data["target"])} &middot; Updated {e(data["updated"][:16].replace("T", " "))}</div>
+<div class="mute">Target: {e(data["target"])}</div>
+<div class="card now">{now_card(data)}</div>
 <div class="stats">
 <div class="card stat"><b>{done}/{sum(c.values())}</b>sections done</div>
 <div class="card stat"><b>{c["building"] + c["built"]}</b>building or built</div>
@@ -328,12 +407,14 @@ def render(d, data):
 <h2>Pages and sections</h2><div class="legend">{legend}</div>
 <div class="card scroll"><table><tr><th>Page</th><th>Sections</th><th class="hide-sm">Done</th></tr>
 {''.join(rows) or '<tr><td colspan="3" class="mute">No pages yet.</td></tr>'}</table></div>
-<h2>Open QA findings ({len(of)})</h2>
-<div class="card scroll"><table><tr><th>ID</th><th>Severity</th><th>Where</th><th>What</th></tr>
-{frows or '<tr><td colspan="4" class="mute">None open.</td></tr>'}</table>
-<p class="mute">{len(closed)} closed (fixed or decided).</p></div>
+<h2>QA findings ({len(data["findings"])}): {len(of)} open</h2>
+<div class="card scroll"><div class="counts">{fcounts}</div>
+{run_table}
+<h3>Open ({len(of)})</h3><table>{FHEAD}
+{frows or '<tr><td colspan="6" class="mute">None open.</td></tr>'}</table>
+{folded}</div>
 <h2>Log</h2><div class="card"><ul class="log">{log}</ul></div>
-</main></body></html>
+</main>{AGO}</body></html>
 """
     with open(path(d, 'progress.html'), 'w', encoding='utf-8', newline='\n') as f:
         f.write(page)
@@ -348,6 +429,10 @@ def main(argv=None):
     p.add_argument('--target', choices=['wordpress', 'nextjs'], default='wordpress')
     p.add_argument('--figma')
     p.add_argument('--force', action='store_true')
+    p = sub.add_parser('now')
+    p.add_argument('step')
+    for opt in ('--next', '--waiting', '--blocked'):
+        p.add_argument(opt)
     p = sub.add_parser('page')
     p.add_argument('slug')
     for opt in ('--name', '--route', '--sections', '--desktop', '--mobile'):
@@ -372,7 +457,7 @@ def main(argv=None):
     sub.add_parser('status')
     sub.add_parser('render')
     a = ap.parse_args(argv)
-    {'init': cmd_init, 'page': cmd_page, 'set': cmd_set, 'phase': cmd_phase, 'finding': cmd_finding,
+    {'init': cmd_init, 'now': cmd_now, 'page': cmd_page, 'set': cmd_set, 'phase': cmd_phase, 'finding': cmd_finding,
      'log': cmd_log, 'url': cmd_url, 'status': cmd_status, 'render': cmd_render}[a.cmd](a)
 
 

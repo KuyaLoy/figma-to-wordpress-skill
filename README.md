@@ -24,8 +24,9 @@ How it works:
   Nothing cut or overflowing at other widths, also with every field filled long; images sharp on retina screens.
 - **Optimized by default**: SEO standard, speed built in (PageSpeed Insights aimed at a pass, not a must; the design
   is never changed for a score).
-- **A progress page** shows what is done and what is not: phases, every page's sections with their status, open QA
-  findings, a short log.
+- **A progress page** shows what is happening now and what is done: Now/Next and the update time at the top,
+  phases, every page's sections with their status, every QA finding with its status, a short log. Republished at
+  every unit end and every stop.
 
 ## Requirements
 
