@@ -216,8 +216,8 @@ pre-launch part of the report, and ask for the go-live gate.
 - **Live QA:** `check.mjs` on the live address over every route; forms with one real test lead each, named
   `TEST <developer> - please ignore`, after the developer agrees, each reaching the email and the leads portal
   (its admin shows the count per form); one of them sent from a page opened with
-  `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST` shows them in the email's "Where this lead came
-  from" row and in the portal; tracking and the conversion (`generate_lead`) fire; nothing from
+  `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST` shows them in the email's Lead source table
+  and in the portal; tracking and the conversion (`generate_lead`) fire; nothing from
   local left (search engines allowed, debug off, no `_figma/` or private files reachable, the long content test
   pages removed: `references/qa.md`).
 

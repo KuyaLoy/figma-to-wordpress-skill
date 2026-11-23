@@ -5,6 +5,25 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.11] - 2026-11-23
+
+The lead email's "Lead source" table, as convert-to-wordpress 0.9.10 (the layout of an existing company build).
+
+### Changed
+
+- **Next.js** (`references/nextjs.md` phase 3): the lead email's "Where this lead came from" row becomes the Lead
+  source table (HTML and plain text): a title row on the brand colour with the higher-contrast text (#28292D with
+  white without one), "First visit", "Latest campaign visit" (only when it differs), "Form sent from"; each visit's
+  source in words ("Google Ads click", "Google search", "Direct (typed in, bookmark or no source)"...), then
+  Campaign, Keyword, Ad, the click ids, From, Landing page, "When: ... UTC"; "Not recorded" without page-script
+  data. The browser keeps the first visit and the latest campaign visit.
+- New fields, as the kit: `first_term`, `first_content`, `first_gclid`, `first_gbraid`, `first_wbraid`,
+  `first_fbclid`, `first_msclkid` (200) and `last_seen`; `first_seen` and `last_seen` are "YYYY-MM-DD HH:MM" UTC
+  (16). `sendLead()` sends them under the same names.
+- **WordPress** (`references/wordpress.md`): points to the kit's 0.9.10 rule (the Lead source table, its title row
+  in `KITWP_BRAND_COLOUR`) and its must-use plugin for a WordPress site the kit did not build.
+- QA forms row and Live QA name the Lead source table.
+
 ## [0.2.10] - 2026-11-23
 
 Form attribution on every lead form by default, and the Recommended additions raised at the plan (as

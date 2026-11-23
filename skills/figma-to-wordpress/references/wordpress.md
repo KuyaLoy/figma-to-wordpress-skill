@@ -72,10 +72,13 @@ The leads portal: the kit's rule as it is (its `references/forms-email.md` > The
 sender posts each lead form whether the email went out or failed, the code is in from this phase, the endpoint and
 key live only in the live wp-config, and it is off locally and on staging. Never copied here.
 
-Form attribution: the kit's rule as it is (its `references/forms-email.md` > Where the lead came from, 0.9.9 or
-later): built into the kit's theme on every Contact Form 7 form, nothing to set up. The hidden fields don't change
-the Figma look. Its consent setting (`KITWP_ATTRIBUTION_CONSENT`) follows the site's consent banner, decided at the
-plan. The plan's Recommended additions use the kit's `assets/plan/PLAN.template.md` table.
+Form attribution: the kit's rule as it is (its `references/forms-email.md` > Where the lead came from, 0.9.10 or
+later): built into the kit's theme on every Contact Form 7 form, nothing to set up: the first visit and the latest
+campaign visit in hidden fields, and the lead email's Lead source table (its title row in `KITWP_BRAND_COLOUR`, set
+from the design's brand colour). The hidden fields don't change the Figma look. Its consent setting
+(`KITWP_ATTRIBUTION_CONSENT`) follows the site's consent banner, decided at the plan. A WordPress site the kit did
+not build gets the same as a must-use plugin (the kit's `scripts/launch/lead-source-plugin.py`). The plan's
+Recommended additions use the kit's `assets/plan/PLAN.template.md` table.
 
 ## QA: prevent, then converge
 

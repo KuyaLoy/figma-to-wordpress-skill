@@ -42,29 +42,44 @@ WordPress; only the stack differs.
   and logo; a plain-text part too. Redirect to `/thank-you` (noindex) where the conversion fires.
 - Without JavaScript the form still posts (progressive enhancement with a Server Action).
 - **Where the lead came from (form attribution),** on every lead form by default, no package; the same names, caps,
-  email row and event as convert-to-wordpress 0.9.9 (its `references/forms-email.md` > Where the lead came from):
+  Lead source table and event as convert-to-wordpress 0.9.10 (its `references/forms-email.md` > Where the lead came
+  from):
   - **Browser, first party only** (`src/lib/attribution.ts`, a small client module loaded once in the root layout):
-    last touch per visit in sessionStorage `kitwp_attr_last` (the campaign tags `utm_source`, `utm_medium`,
-    `utm_campaign`, `utm_term`, `utm_content`, the ad click ids `gclid`, `gbraid`, `wbraid`, `fbclid`, `msclkid`,
-    `landing_page`, `referrer`; a new campaign link replaces them); first touch in localStorage `kitwp_attr_first`
-    for 90 days (`first_source`, `first_medium`, `first_campaign`, `first_landing_page`, `first_referrer`,
-    `first_seen` YYYY-MM-DD). Addresses keep host and path, never the query. Nothing leaves the browser until the
+    two visits. The **first visit** in localStorage `kitwp_attr_first`, kept 90 days; the **latest campaign visit**
+    (the last one that came with campaign tags, an ad click id or from another website) in `kitwp_attr_last`, kept
+    the same way. Each: the campaign tags (utm_source, utm_medium, utm_campaign, utm_term, utm_content), the ad
+    click ids (gclid, gbraid, wbraid, fbclid, msclkid), its first page, the site that sent it, its time
+    ("YYYY-MM-DD HH:MM" UTC). Addresses keep host and path, never the query. Nothing leaves the browser until the
     visitor sends a form; nothing goes to a third party. Storage blocked: the form still gets this page's values.
   - **Consent as the kit's "auto":** Google Consent Mode in the dataLayer. A page that sets a consent default has
-    a banner: the first visit goes to localStorage only once `ad_storage` or `analytics_storage` is granted; until
-    then, and after an update with neither granted, only this visit is kept (sessionStorage), and a decline removes
-    a stored first visit. No consent default on the page: no banner, stored as above. Either way the form gets this
+    a banner: the visits go to localStorage only once `ad_storage` or `analytics_storage` is granted; until then,
+    and after an update with neither granted, only this visit is kept (sessionStorage), and a decline removes the
+    stored visits. No consent default on the page: no banner, stored as above. Either way the form gets this
     visit's values.
-  - **Hidden fields on every lead form** with those 18 names, filled at load, on first focus and at submit.
+  - **Hidden fields on every lead form,** filled at load, on first focus and at submit. The latest campaign visit:
+    `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `gclid`, `gbraid`, `wbraid`, `fbclid`,
+    `msclkid`, `landing_page`, `referrer`, `last_seen`. The first visit: `first_source`, `first_medium`,
+    `first_campaign`, `first_term`, `first_content`, `first_gclid`, `first_gbraid`, `first_wbraid`,
+    `first_fbclid`, `first_msclkid`, `first_landing_page`, `first_referrer`, `first_seen`.
   - **Checked on the server** (`src/lib/attribution-server.ts`, `import 'server-only'`, called by every form's
     action): only those names, strings, cleaned, capped (500 for `landing_page`, `referrer`, `first_landing_page`,
-    `first_referrer`; 10 for `first_seen`; 200 for the rest), http(s) addresses with host and path only; anything
-    else dropped. Without JavaScript the form page's own address (the `Referer` header) gives its campaign tags and
-    click ids. Reporting only: never used to decide anything about a lead.
-  - **The lead email:** a "Where this lead came from:" row (HTML escaped, and in the plain-text part): Source /
-    medium, Campaign, Keyword, Ad content, Ad click (Google Ads (gclid), Meta (fbclid), Microsoft Ads (msclkid)...),
-    Referrer, Landing page, First visit; empty lines dropped; "Direct (no campaign, ad click or other site)" when
-    none.
+    `first_referrer`; 16 for `first_seen` and `last_seen`; 200 for the rest), http(s) addresses with host and path
+    only; anything else dropped. Without JavaScript the form page's own address (the `Referer` header) gives its
+    campaign tags and click ids. Reporting only: never used to decide anything about a lead.
+  - **The lead email's Lead source table,** under the lead details, in the HTML and the plain-text part (the same
+    rows as lines), every value escaped:
+    - Title row "Lead source", bold, on the design's brand colour (from the tokens) with black (#1a1a1a) or white
+      text, whichever has the higher contrast; no brand colour: #28292D with white. Label cells grey (#fafafa), a 38%
+      label column, 1px #dddddd borders, Arial 13px.
+    - Rows: "First visit"; "Latest campaign visit" only when it differs from the first (time ignored); "Form sent
+      from" (the page the form was sent from, from the server's own record, so it shows without JavaScript too).
+      No page-script data: "Not recorded (the visitor's browser did not run the page script)." plus "Form sent
+      from".
+    - Each visit starts with its source in words, bold: utm_source / utm_medium; else "Google Ads click" (gclid,
+      gbraid, wbraid), "Facebook / Instagram click" (fbclid), "Microsoft Ads click" (msclkid); else from the
+      referrer "Google search", "Bing search", "Yahoo search", "DuckDuckGo search" or "<site> (link)"; else "Direct
+      (typed in, bookmark or no source)". Then the lines that have a value: Campaign, Keyword, Ad, gclid, gbraid,
+      wbraid, fbclid, msclkid, From, Landing page, "When: YYYY-MM-DD HH:MM UTC".
   - **The conversion:** at submit the form's client part stores the form's name, source, medium and the time in
     sessionStorage `kitwp_lead`; `/thank-you` pushes one `generate_lead` to the dataLayer with `form_name`,
     `lead_source` and `lead_medium` when that entry is under 30 minutes old, then removes it, so a refresh or a
@@ -103,4 +118,5 @@ Domain and redirects as the task says. The leads portal: the project in the port
 convert-to-wordpress kit's `scripts/report/leads-check.py` works for any site; the developer runs it with the key
 from the environment or its hidden prompt), then one TEST lead per form after the developer agrees (one from a page
 opened with `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST`: the email row and the portal show
-them; a lead from a plain visit shows "Direct"). Live QA as in SKILL.md.
+them in the Lead source table; a lead from a plain visit shows "Direct (typed in, bookmark or no source)").
+Live QA as in SKILL.md.
