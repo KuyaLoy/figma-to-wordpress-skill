@@ -111,9 +111,10 @@ apply as well (go quoted in notes.md, stop messages, no Zoho posts). Where they 
 2. **The task.** Read it in full and save it verbatim to `_figma/brief.md` (rule 2). Note its definition of done.
 3. **Intake, once.** One batch of questions, defaults first, only what the task and the profile don't answer:
    target (WordPress unless the task says Next.js), where to build (local folder and address), the Figma file and
-   which page or frames are final, live domain and host, form recipients, tracking (GTM), anything the task leaves
-   open. A Figma link without a node id: ask for the page or read the file's pages with `get_metadata`. The check
-   needs, in the project: `npm i -D playwright pixelmatch pngjs` (`references/qa.md`).
+   which page or frames are final, live domain and host, form recipients, tracking (GTM, or on WordPress the
+   profile's tracking plugin when it names one), anything the task leaves open. A Figma link without a node id: ask
+   for the page or read the file's pages with `get_metadata`. The check needs, in the project: `npm i -D playwright
+   pixelmatch pngjs` (`references/qa.md`).
 4. **Inventory, once** (`references/figma.md`): pages and their desktop and mobile frames, breakpoints, tokens
    (variables, or inferred from nodes), fonts, components, video, GIF, motion and prototype interactions, hidden and
    off-canvas layers (drafts are never built), assets that need edits, design gaps. Write `_figma/inventory.md`
@@ -149,7 +150,7 @@ One phase at a time, in this order. Each phase ends with QA that only collects f
 | Fix | One full QA run over every route (its findings join the list), then every open finding fixed, blockers and majors first | Same |
 | QA until 0 | Each fix pass re-checked, scoped to what changed (`references/qa.md` section 10), until a re-check finds 0 | Same |
 | Gate: go-live | The developer's go | Same |
-| Live | Launch, then convert-to-wordpress's live plugin checklist (`references/wordpress.md` > Live); staging gets none of it; live QA; report | Deploy where the task says; live QA; report |
+| Live | Launch, then convert-to-wordpress's live plugin checklist and plugin check (`references/wordpress.md` > Live); staging gets none of the live list; live QA; report; then Duplicator deleted | Deploy where the task says; live QA; report |
 
 Only a **blocker** is fixed at once during a phase: the site breaks, or the next phase can't start. Everything
 else waits for the Fix step, so each phase runs straight through.
@@ -205,9 +206,11 @@ pre-launch part of the report, and ask for the go-live gate.
 
 ## Live
 
-- **WordPress:** follow convert-to-wordpress's launch steps (backup, package, move, checks, rollback) and its live
-  plugin checklist, the one list (`references/wordpress.md` > Live): live only, staging gets none of it. The
-  developer types every live password and licence key.
+- **WordPress:** follow convert-to-wordpress's launch steps (backup, package, move, checks, rollback) and its plugin
+  list per environment, the one list (`references/wordpress.md` > Live): live gets exactly that list, staging the
+  three core plugins and none of the live list; its `plugin-check.py` proves it. After live QA is at 0 and the
+  report is done, Duplicator is deleted (`--done --files`). The developer types every live password and licence
+  key.
 - **Next.js:** deploy where the task says (Vercel unless it names a host); environment variables typed by the
   developer in the host's settings; the domain and redirects as the task says.
 - **Leads portal** (both targets): mandatory on a live site with a lead form; the code is in from phase 3, the
@@ -244,5 +247,6 @@ Every page and section `checked` or `fixed` on the progress page; QA's last full
 (rule 13: PHPCS, Prettier, ESLint, the self-check, the code review); every page editable (WordPress) or every
 route built from typed content (Next.js); forms, emails, form attribution and the leads portal proven on live; the
 Recommended additions raised at the plan and decided; SEO, tracking and the
-conversion proven on live; the live plugin checklist done on a live WordPress; nothing private reachable; the
+conversion proven on live; the live plugin checklist done and `plugin-check.py --env live` OK on a live WordPress,
+then Duplicator deleted (`--done`); nothing private reachable; the
 report written and the progress page republished; the stop report sent.

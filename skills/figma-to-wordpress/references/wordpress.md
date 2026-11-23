@@ -29,7 +29,10 @@ with its source and size, unless the developer's profile says otherwise):
 4. Plugins: ACF PRO from the developer's zip (`plugin_zips.acf_pro`), activated by the profile's
    `acf_pro_license`, which the kit's `make-wp-config.py` writes only into local wp-config files (its
    `references/setup.md` > Starter plugins); Contact Form 7, Yoast SEO, and the profile's `required` extra
-   plugins. Nothing from the live plugin checklist locally (Live, below).
+   plugins with `"where": "all"` (or no `where`), never its `"where": "live"` ones; Redirection only if the site
+   needs redirects. The list per environment is the kit's, never copied here: its
+   `references/wordpress-essentials.md` > Plugins (0.9.11 or later). Nothing from the live list locally or on
+   staging (Live, below).
 5. The theme, by the starter rule (the plan states the choice and one reason; the developer can override; the
    task's word wins). A Figma design is never a Tailwind source, so:
    - **clearly easier in Tailwind** (a design system with repeating tokens: Figma variables or styles, many
@@ -82,28 +85,40 @@ Recommended additions use the kit's `assets/plan/PLAN.template.md` table.
 
 ## QA: prevent, then converge
 
-- **Prevent:** the kit's pre-QA self-check (`scripts/report/self-check.py`) before every QA run: its
-  `references/phases-and-qa.md` > The self-check before every QA run (0.9.6 or later).
+- **Prevent:** the kit's pre-QA self-check (`scripts/report/self-check.py <wp_root> --url <local url> --profile
+  <kit>/profile.local.json`) before every QA run: its `references/phases-and-qa.md` > The self-check before every QA
+  run (0.9.11 or later; `--profile` flags GTM or ACF tracking fields in the theme when the profile names a tracking
+  plugin).
 - **Converge:** one full run per site, then fix passes re-checking what changed, pixel only on the routes the kit's
   `changed-routes.py` names: its `references/phases-and-qa.md` > The fix loop (`references/qa.md` section 10 here).
 
 ## Phase 4: SEO, security, speed
 
 The kit's SEO and security rules apply (Yoast seeded, schema, canonicals, noindex thank-you, redirects for old URLs
-if the site replaces one, hardening, private files 403). Speed: built in from the first section (rule 6 of
-SKILL.md). The cache plugin is the live checklist's (LiteSpeed Cache unless the profile's `cache_plugin` names
-another), on every live site and never locally or on staging. A heavy design (background video, large imagery,
-many animations) only uses more of its options on live, never a second speed plugin: page and browser cache first,
-then CSS and JS options one at a time, each followed by a parity check (the kit's `references/seo-security.md` >
-Performance).
+if the site replaces one, hardening, private files 403). Every redirect on live is in the Redirection plugin, never
+in `.htaccess` (host rules only) or theme code. Tracking as the kit's `references/seo-security.md` > Tracking: when
+the profile names a tracking plugin (`tracking.plugin`), it is the only way, with no ACF tracking fields or options
+page and no GTM in the theme; the plugin goes on live only and is filled from the tracking task. Speed: built in
+from the first section (rule 6 of SKILL.md). The cache plugin is the live checklist's (LiteSpeed Cache unless the
+profile's `cache_plugin` names another), on every live site and never locally or on staging. A heavy design
+(background video, large imagery, many animations) only uses more of its options on live, never a second speed
+plugin: page and browser cache first, then CSS and JS options one at a time, each followed by a parity check (the
+kit's `references/seo-security.md` > Performance).
 
 ## Live
 
 The kit's launch steps, one at a time, with the developer doing every step that needs a password or a payment.
 After the move: **the live plugin checklist**, the one list, in the kit's `assets/launch/RUNBOOK.template.md`
-section 4 (and `references/launch.md` > After the installer); never copied here. In short: the profile's live
-plugins from the developer's plugin folder (each zip's version checked before go-live), Contact Form CFDB7,
-Converter for Media, the reCAPTCHA v3 keys, the cache plugin (LiteSpeed Cache unless the profile names another)
-and the leads portal item (the project in the portal admin, endpoint and key pasted into the live wp-config, the
-kit's `scripts/report/leads-check.py` GET check, then one TEST lead per form in the portal).
-Live only: staging gets none of it and stays noindex. Then search engines allowed, debug off, live QA.
+section 4 (and `references/launch.md` > After the installer, 0.9.11 or later); never copied here. In short: the
+profile's live plugins from the developer's plugin folder (`"where": "live"` ones installed here first; each zip's
+version checked before go-live), Contact Form CFDB7, Converter for Media, Redirection when the site has any
+redirect, the reCAPTCHA v3 keys on every form, the cache plugin (LiteSpeed Cache unless the profile names another)
+and the leads portal on every lead form (the project in the portal admin, endpoint and key pasted into the live
+wp-config, the kit's `scripts/report/leads-check.py` GET check, then one TEST lead per form in the portal).
+Live has exactly the kit's list and nothing else unless the task asks (site.json `"task_plugins"`). Staging gets
+ACF PRO, Contact Form 7 and Yoast SEO (Redirection if needed), none of the live list, and stays noindex. Then search
+engines allowed, debug off, live QA, where the kit's `scripts/report/plugin-check.py <wp_root>/_plan/site.json --env
+live --profile <kit>/profile.local.json --list <wp plugin list JSON>` says OK (staging: `--env staging`).
+**Clean-up** once live QA is at 0 and the report is done: Duplicator's backups deleted, the plugin deactivated and
+deleted, its backups folder and any installer or archive gone; `plugin-check.py ... --env live --done --files
+<listing>` confirms it (the kit's RUNBOOK section 5).

@@ -5,6 +5,22 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.12] - 2026-11-23
+
+The default plugin stack per environment, as convert-to-wordpress 0.9.11. Next.js is unchanged.
+
+### Changed
+
+- **WordPress** (`references/wordpress.md`): points to the kit's plugin list per environment (its
+  `references/wordpress-essentials.md` > Plugins) instead of naming plugins here. Phase 1 installs only the local
+  list: the profile's `"where": "live"` plugins and the live-only ones never go on local or staging. Live has
+  exactly the kit's list, nothing else unless the task asks; staging the three core plugins (Redirection if needed).
+- Every live redirect in the Redirection plugin; reCAPTCHA and the leads portal on every live form.
+- Tracking: when the profile names a tracking plugin, it is the only way: no ACF tracking fields and no GTM in the
+  theme. The kit's self-check runs with `--profile`, which flags both.
+- Live QA runs the kit's `plugin-check.py --env live`; after live QA is at 0 and the report is done, Duplicator is
+  deleted and `--done --files` confirms it. SKILL.md intake, phase table, Live and Done means say so.
+
 ## [0.2.11] - 2026-11-23
 
 The lead email's "Lead source" table, as convert-to-wordpress 0.9.10 (the layout of an existing company build).
