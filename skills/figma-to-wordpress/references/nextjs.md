@@ -41,13 +41,42 @@ WordPress; only the stack differs.
 - Mail through the task's service (Resend, SMTP, the client's provider). HTML email built from the design's colours
   and logo; a plain-text part too. Redirect to `/thank-you` (noindex) where the conversion fires.
 - Without JavaScript the form still posts (progressive enhancement with a Server Action).
+- **Where the lead came from (form attribution),** on every lead form by default, no package; the same names, caps,
+  email row and event as convert-to-wordpress 0.9.9 (its `references/forms-email.md` > Where the lead came from):
+  - **Browser, first party only** (`src/lib/attribution.ts`, a small client module loaded once in the root layout):
+    last touch per visit in sessionStorage `kitwp_attr_last` (the campaign tags `utm_source`, `utm_medium`,
+    `utm_campaign`, `utm_term`, `utm_content`, the ad click ids `gclid`, `gbraid`, `wbraid`, `fbclid`, `msclkid`,
+    `landing_page`, `referrer`; a new campaign link replaces them); first touch in localStorage `kitwp_attr_first`
+    for 90 days (`first_source`, `first_medium`, `first_campaign`, `first_landing_page`, `first_referrer`,
+    `first_seen` YYYY-MM-DD). Addresses keep host and path, never the query. Nothing leaves the browser until the
+    visitor sends a form; nothing goes to a third party. Storage blocked: the form still gets this page's values.
+  - **Consent as the kit's "auto":** Google Consent Mode in the dataLayer. A page that sets a consent default has
+    a banner: the first visit goes to localStorage only once `ad_storage` or `analytics_storage` is granted; until
+    then, and after an update with neither granted, only this visit is kept (sessionStorage), and a decline removes
+    a stored first visit. No consent default on the page: no banner, stored as above. Either way the form gets this
+    visit's values.
+  - **Hidden fields on every lead form** with those 18 names, filled at load, on first focus and at submit.
+  - **Checked on the server** (`src/lib/attribution-server.ts`, `import 'server-only'`, called by every form's
+    action): only those names, strings, cleaned, capped (500 for `landing_page`, `referrer`, `first_landing_page`,
+    `first_referrer`; 10 for `first_seen`; 200 for the rest), http(s) addresses with host and path only; anything
+    else dropped. Without JavaScript the form page's own address (the `Referer` header) gives its campaign tags and
+    click ids. Reporting only: never used to decide anything about a lead.
+  - **The lead email:** a "Where this lead came from:" row (HTML escaped, and in the plain-text part): Source /
+    medium, Campaign, Keyword, Ad content, Ad click (Google Ads (gclid), Meta (fbclid), Microsoft Ads (msclkid)...),
+    Referrer, Landing page, First visit; empty lines dropped; "Direct (no campaign, ad click or other site)" when
+    none.
+  - **The conversion:** at submit the form's client part stores the form's name, source, medium and the time in
+    sessionStorage `kitwp_lead`; `/thank-you` pushes one `generate_lead` to the dataLayer with `form_name`,
+    `lead_source` and `lead_medium` when that entry is under 30 minutes old, then removes it, so a refresh or a
+    direct visit pushes nothing.
 - **The leads portal** (mandatory on live for every lead form; a site without one says so in the plan): a
   server-only `sendLead()` in `src/lib/leads.ts` (`import 'server-only'`), called from each form's action
   **whether the mail service succeeded or failed**, once per submission:
   - `POST` JSON to `process.env.LEADS_ENDPOINT` with `Authorization: Bearer ${process.env.LEADS_WRITE_KEY}`:
     `form` (the form's name), a unique `idempotency_key` (`crypto.randomUUID()`), the posted fields, `source_url`,
-    `ip_address` (from `x-forwarded-for`), `gclid`, `fbp`, `fbc` (from the query string or the `_fbp`/`_fbc`
-    cookies). Never files, consent, the honeypot or sensitive fields (health, dates of birth).
+    `ip_address` (from `x-forwarded-for`), the cleaned attribution fields under the same names (`gclid` from the
+    visit), `fbp`, `fbc` (from the `_fbp`/`_fbc` cookies). Never files, consent, the honeypot or sensitive fields
+    (health, dates of birth).
   - A 5 second timeout (`AbortSignal.timeout(5000)`); 200 and 202 count as delivered; any failure is logged with the
     status only and never blocks the visitor or the thank-you page.
   - Off unless both variables are set: they are set only for the live (Production) environment on the host, never
@@ -72,5 +101,6 @@ Deploy where the task says (Vercel by default: the developer connects the repo a
 Domain and redirects as the task says. The leads portal: the project in the portal admin (domain = the live domain),
 `LEADS_ENDPOINT` and `LEADS_WRITE_KEY` set for Production only, then the GET check, which stores nothing (the
 convert-to-wordpress kit's `scripts/report/leads-check.py` works for any site; the developer runs it with the key
-from the environment or its hidden prompt), then one TEST lead per form after the developer agrees. Live QA as in
-SKILL.md.
+from the environment or its hidden prompt), then one TEST lead per form after the developer agrees (one from a page
+opened with `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST`: the email row and the portal show
+them; a lead from a plain visit shows "Direct"). Live QA as in SKILL.md.

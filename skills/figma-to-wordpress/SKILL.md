@@ -127,6 +127,12 @@ apply as well (go quoted in notes.md, stop messages, no Zoho posts). Where they 
    They go in the plan and the plan OK covers them, so no rule arrives mid-build and reopens finished work. A skill
    update during a task applies at the next phase boundary, never inside a QA run or a fix pass: finish it, then
    update and log the new version.
+   **Recommended additions, raised at the plan** (the plan's list, and first in the plan-ready report): form
+   attribution, SEO, site speed, testing, tracking; for each, what the site lacks and what we recommend, one line
+   with its size ("nothing to add" is a valid line), as the table in convert-to-wordpress's
+   `assets/plan/PLAN.template.md`. Form attribution is built in by default; the rest are recommendations: the
+   developer decides, approved ones go into the plan, the others into the report. Anything else that changes the
+   work (a risk, a blocker, a better way) is said in one line as soon as it is known, never first at done.
 6. **Gate: the plan.** Show the plan in 3 lines plus the progress link and wait for the developer's OK (in a
    Command Center project: the lead's go typed in this chat, quoted in notes.md). Nothing is built before it.
 
@@ -138,7 +144,7 @@ One phase at a time, in this order. Each phase ends with QA that only collects f
 |---|---|---|
 | 1 Setup | Local WordPress in one go, the plugins and the theme (`references/wordpress.md`); tokens, fonts and base styles from `tokens.json` | The app, Tailwind tokens from `tokens.json`, fonts with `next/font` (`references/nextjs.md`) |
 | 2 Pages | Section by section (below): global parts first (header, footer, menus, mobile menu), then the template most pages share, then the other pages; every page editable in ACF; last, the long content test pages | The same order, as components and routes; content in one typed content file per page unless the task names a CMS; last, the long content route |
-| 3 Forms and email | Contact Form 7 forms with the branded emails, spam protection, thank-you page; the leads portal sender (`references/wordpress.md`) | Server actions or a route handler with validation, spam protection, the task's mail service and the leads portal sender (`references/nextjs.md`) |
+| 3 Forms and email | Contact Form 7 forms with the branded emails, spam protection, thank-you page; form attribution and the leads portal sender (`references/wordpress.md`) | Server actions or a route handler with validation, spam protection, the task's mail service, form attribution and the leads portal sender (`references/nextjs.md`) |
 | 4 SEO, security, speed | Yoast, schema, redirects, hardening, speed checks | Metadata API, sitemap, robots, JSON-LD, headers, speed checks |
 | Fix | One full QA run over every route (its findings join the list), then every open finding fixed, blockers and majors first | Same |
 | QA until 0 | Each fix pass re-checked, scoped to what changed (`references/qa.md` section 10), until a re-check finds 0 | Same |
@@ -209,7 +215,9 @@ pre-launch part of the report, and ask for the go-live gate.
   without a lead form says so in the plan. The portal's address comes from the developer's profile or the task.
 - **Live QA:** `check.mjs` on the live address over every route; forms with one real test lead each, named
   `TEST <developer> - please ignore`, after the developer agrees, each reaching the email and the leads portal
-  (its admin shows the count per form); tracking and the conversion fire; nothing from
+  (its admin shows the count per form); one of them sent from a page opened with
+  `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST` shows them in the email's "Where this lead came
+  from" row and in the portal; tracking and the conversion (`generate_lead`) fire; nothing from
   local left (search engines allowed, debug off, no `_figma/` or private files reachable, the long content test
   pages removed: `references/qa.md`).
 
@@ -234,6 +242,7 @@ the developer's handoff rules.
 
 Every page and section `checked` or `fixed` on the progress page; QA's last full run found 0; the code gates pass
 (rule 13: PHPCS, Prettier, ESLint, the self-check, the code review); every page editable (WordPress) or every
-route built from typed content (Next.js); forms, emails and the leads portal proven on live; SEO, tracking and the
+route built from typed content (Next.js); forms, emails, form attribution and the leads portal proven on live; the
+Recommended additions raised at the plan and decided; SEO, tracking and the
 conversion proven on live; the live plugin checklist done on a live WordPress; nothing private reachable; the
 report written and the progress page republished; the stop report sent.

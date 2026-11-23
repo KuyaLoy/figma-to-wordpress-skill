@@ -160,7 +160,10 @@ grep -rn $X --include='*.php' -e 'phpcs:ignore' -e 'phpcs:disable' .
 - **Code (every phase):** section 7 is clean; values come from tokens; a shared map (colours, variants) exists once;
   sections reuse parts instead of copying them; comments say why, with no Figma node IDs or ticket tags.
 - **Forms and email:** every form submits locally, validation and error states, thank-you redirect, the email
-  arrives (local mail capture) with the right layout, recipients and reply-to; spam protection on.
+  arrives (local mail capture) with the right layout, recipients and reply-to; spam protection on; form
+  attribution: a post from a page with UTMs and a click id shows them in the email's "Where this lead came from"
+  row and the portal payload, a plain post shows "Direct", a tampered or oversized value is cut or dropped, and
+  `/thank-you` pushes one `generate_lead`.
 - **SEO, security, speed:** one H1 and heading order, titles and descriptions, canonicals, Open Graph, sitemap,
   robots, schema valid, thank-you noindex, 404 real; no secrets in code; headers and hardening; LCP image preloaded,
   images sized, fonts swap, little JS; local Lighthouse as a regression guard only.

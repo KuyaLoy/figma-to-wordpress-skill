@@ -5,6 +5,28 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.10] - 2026-11-23
+
+Form attribution on every lead form by default, and the Recommended additions raised at the plan (as
+convert-to-wordpress 0.9.9).
+
+### Added
+
+- **Form attribution, both targets,** with convert-to-wordpress 0.9.9's names: last touch (`utm_source`,
+  `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `gclid`, `gbraid`, `wbraid`, `fbclid`, `msclkid`,
+  `landing_page`, `referrer`) and first touch (`first_source`, `first_medium`, `first_campaign`,
+  `first_landing_page`, `first_referrer`, `first_seen`) in hidden fields; server caps (500 for the addresses, 10 for
+  the date, 200 for the rest); the lead email's "Where this lead came from" row ("Direct" when none); the portal
+  fields; `generate_lead` with `form_name`, `lead_source`, `lead_medium` on the thank-you page.
+  - WordPress: `references/wordpress.md` points to the kit's rule (its forms-email.md > Where the lead came from).
+  - Next.js: `references/nextjs.md` phase 3 spells out the same capture (consent as the kit's "auto": Google
+    Consent Mode), the server-only checks, the email row, the conversion, and the fields in `sendLead()`.
+- **Recommended additions at the plan:** form attribution, SEO, site speed, testing, tracking, one line each with
+  its size, first in the plan-ready report; the developer decides. Anything that changes the work is said as soon as
+  it is known (SKILL.md plan step).
+- Live QA and the QA forms checklist: a test lead from a page with UTMs and a click id shows them in the email and
+  the portal; a plain one shows "Direct".
+
 ## [0.2.9] - 2026-11-20
 
 The chat's state shows in its title, so the sidebar shows what is working (as convert-to-wordpress 0.9.8).
