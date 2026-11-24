@@ -24,6 +24,7 @@ progress.py <dir> url https://claude.ai/artifact/... [--live]   # --live: the li
 progress.py <dir> status                          # summary for a resume
 progress.py <dir> render                          # re-render only (the update time becomes now)
 progress.py <dir> render --pushed                 # after the rows in progress-rows.json went to the database
+progress.py <dir> render --refresh 30 --open      # tools without Artifacts: the local page, opened once
 ```
 
 Every change re-renders `_figma/progress.html` and prints one line. One write per section (`set ... built`), one
@@ -63,13 +64,16 @@ folded below.
   message and the recap; the next status replaces it. A real stop (waiting on the developer, blocked, a checkpoint,
   a usage pause) never says RUNNING.
 - **The title:** in the Claude desktop app the chat also keeps its state at the front of its own title
-  (`set_session_title` with "self", one call per state change, the rest of the title unchanged; other tools skip
-  it): `▶ RUNNING | <title>` while it or its own background work runs (a check, a build, a subagent),
-  `⏸ WAITING on <who> | <title>` when it waits on the developer, Command Center or the client, `✋ BLOCKED |
-  <title>`, `✓ DONE | <title>` at done (and in review). Never for anything else, never polling.
+  (`set_session_title` with "self", one call per state change, the rest of the title unchanged; other tools:
+  convert-to-wordpress's `references/agents.md` > Per tool): `▶ RUNNING | <title>` while it or its own background work
+  runs (a check, a build, a subagent), `⏸ WAITING on <who> | <title>` when it waits on the developer, Command Center or
+  the client, `✋ BLOCKED | <title>`, `✓ DONE | <title>` at done (and in review). Never for anything else, never polling.
 - **Claude (Artifact tool): the live page,** below. It updates itself; "publish" means push the rows.
-- **Other tools:** open `_figma/progress.html` in a browser (self-contained: no requests; one tiny inline script
-  shows "n min ago"); the developer refreshes it at the same moments. Where Claude has no artifact database,
+- **Other tools (no Artifact):** the local page. Run `progress.py <dir> render --refresh 30 --open` once at the
+  plan (the same flags as convert-to-wordpress's `render.py`): it opens `_figma/progress.html` in the default
+  browser (self-contained: no requests; one tiny inline script shows "n min ago"), every later write re-renders it
+  and the open tab reloads itself every 30 seconds, so publishing needs nothing more. A lead or Command Center reads
+  `_figma/progress.json`. `--refresh 0` turns the reload off. Where Claude has no artifact database,
   publish `_figma/progress.html` once as a private artifact, save its link with `progress.py <dir> url <link>`,
   and republish the same file to that link at the moments above.
 - The page is private: it lists pages, findings and the log, never passwords or keys.
@@ -122,8 +126,8 @@ progress.json stays the source of truth; the rows are made from it.
 ```
 
 `updated` is the time of the last write or render, ISO with minutes. `now`, `next`, `waiting` and `blocked` came in
-0.2.6 (the same keys as convert-to-wordpress 0.9.5's board), `live_url` in 0.2.7; a file without them still loads
-and renders. The live page's state lives next to it: `progress-rows.json` (to push) and `progress-pushed.json`
-(what the database holds).
+0.2.6 (the same keys as convert-to-wordpress 0.9.5's board), `live_url` in 0.2.7, `refresh` (seconds, only when
+set) in 0.2.14; a file without them still loads and renders. The live page's state lives next to it:
+`progress-rows.json` (to push) and `progress-pushed.json` (what the database holds).
 
 Other skills may render the same shape (for example a conversion skill's board): keep these keys stable, only add.

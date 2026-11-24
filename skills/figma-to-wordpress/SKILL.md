@@ -1,6 +1,6 @@
 ---
 name: figma-to-wordpress
-description: Builds a Figma design 1:1 as a WordPress site (every page editable in ACF PRO, forms in Contact Form 7, Yoast SEO) or as a Next.js site (App Router, TypeScript, Tailwind), in one chat. The task's instructions come first, the design is inventoried once, then the build runs phase by phase (setup, pages section by section, forms and email, SEO, security and speed) with QA that only collects findings, one fix loop until QA finds 0, the developer's go, then live. A progress page shows what is done and what is not. Use whenever a Figma file or link has to become a website.
+description: Builds a Figma design 1:1 as a WordPress site (every page editable in ACF PRO, forms in Contact Form 7, Yoast SEO) or as a Next.js site (App Router, TypeScript, Tailwind), in one chat. The task's instructions come first, the design is inventoried once, then the build runs phase by phase (setup, pages section by section, forms and email, SEO, security and speed) with QA that only collects findings, one fix loop until QA finds 0, the developer's go, then live. A progress page shows what is done and what is not. Use whenever a Figma file or link has to become a website, for requests like "build this Figma design", "Figma to WordPress", "Figma to Next.js", "turn this Figma into a website", "code this design from Figma" or "make this Figma page in WordPress".
 license: MIT
 ---
 
@@ -23,12 +23,26 @@ Paths are relative to this file's folder. Read a reference only when its step co
 | `references/nextjs.md` | The Next.js target: stack, tokens, images, fonts, metadata, deploy | Target Next.js |
 | `references/qa.md` | The check script, spec lines, pass marks, long content, the read-only check, the fix loop | First section; end of each phase |
 | `references/progress.md` | progress.json and the progress page | Start; when publishing |
+| `references/live.md` | The launch per target, the leads portal, live QA, the report | Go-live gate; the report |
 | `scripts/progress.py` | Now/Next, pages, sections, statuses, findings, log; renders the progress page | Every step |
 | `scripts/live.py` | The live progress page and its database rows (called by progress.py) | Never by hand |
+| `scripts/oneoff.py` | The self-check searches in Python, for any shell | Every phase gate |
 | `scripts/check.mjs` | Numbers at 1440 and 375 (boxes, pixel diff against Figma, type, colour, images, states) plus an overflow sweep; summary only | Every section, every phase |
 
 WordPress builds also use the **convert-to-wordpress** skill's kit (setup scripts, theme, fields, forms, SEO,
 launch): `references/wordpress.md` says which parts and where to find it. Never copy its rules here; read them there.
+
+## In other tools (Codex, Antigravity, T3 Code and others)
+
+The steps are plain words. Where one names a Claude tool, open convert-to-wordpress's `references/agents.md` > Per
+tool (0.9.14 or later: install folders, loading the skill, asking, subagents, the browser, the context meter, the
+title) and do what its column says. This skill's own steps there:
+- **Figma:** the Figma MCP server connected in this tool (`references/figma.md` > In other tools), else a blocker.
+- **Asking:** the tool's question tool; without one, numbered options with the recommended one first, then wait.
+- **The read-only QA check:** a subagent (Codex `spawn_agent`, Antigravity `invoke_subagent`), not a new chat.
+- **The progress page:** the local file, `progress.py <dir> render --refresh 30 --open` once (`references/progress.md`).
+- **Context:** Codex `/status`; no meter (Antigravity): checkpoint at every page end and phase end.
+- **Shell:** every script is Python or Node; on Windows `py -3` or `python` where a step says `python3`.
 
 ## Rules (always)
 
@@ -76,16 +90,14 @@ launch): `references/wordpress.md` says which parts and where to find it. Never 
     work keeps running (a background command, a subagent, a check) starts its last message, its recap and the
     progress page's Now line with `RUNNING, not stopped: <what>, started HH:MM; I continue by myself when it
     finishes.` (the time from the clock); a real stop never says RUNNING, it says what it waits on. **The title
-    too** (Claude desktop app: `set_session_title` with "self"; other tools skip it): the chat keeps its state at
-    the front of its own title, one call when the state changes, the rest unchanged: `▶ RUNNING | <title>` while it
-    or its own background work runs, `⏸ WAITING on <who> | <title>`, `✋ BLOCKED | <title>`, `✓ DONE | <title>`
-    (also in review); never for anything else.
-12. **Context watch.** Check your context % (the tool's own meter) before each section. From 50%: finish the
-    section, write `_figma/checkpoint.md` (task, go quoted, done so far, state, exact next step), report CHECKPOINT
-    and end the turn. At 75%: the same at the first safe point. Where the thresholds allow, checkpoint at a page
-    or phase end rather than inside a section or a QA run. The checkpoint names the exact next step (the command,
-    the page and section, the route), not "continue QA". `progress.json` and the checkpoint are enough to resume
-    cold.
+    too** (Claude desktop app: `set_session_title` with "self"; other tools: > In other tools): `▶ RUNNING | `,
+    `⏸ WAITING on <who> | `, `✋ BLOCKED | `, `✓ DONE | ` (also in review) at the front of the chat's own title,
+    one call per state change, the rest unchanged, never for anything else (`references/progress.md` > Publishing).
+12. **Context watch.** Check your context % (the tool's own meter: > In other tools) before each section. From 50%:
+    finish the section, write `_figma/checkpoint.md` (task, go quoted, done so far, state, exact next step), report
+    CHECKPOINT and end the turn. At 75%: the same at the first safe point. Where the thresholds allow, checkpoint at a
+    page or phase end rather than inside a section or a QA run. The checkpoint names the exact next step (the command,
+    the page and section, the route), not "continue QA". `progress.json` and the checkpoint are enough to resume cold.
 13. **Clean code: reusable, simple, no spaghetti.** (Learned 19 Nov 2026: a large Figma build had no bugs, but about
     2,000 one-off values, a colour map copied about nine times, a 399-line section, Figma node IDs and ticket tags in
     hundreds of comments, unused kit files shipped, and PHPCS passing only through ignore comments.)
@@ -113,12 +125,12 @@ apply as well (go quoted in notes.md, stop messages, no Zoho posts). Where they 
    database, on WordPress), and the files the checkpoint lists as touched (git status or their times). Don't
    re-read the whole plan or re-run QA; continue from its next step.
 2. **The task.** Read it in full and save it verbatim to `_figma/brief.md` (rule 2). Note its definition of done.
-3. **Intake, once.** One batch of questions, defaults first, only what the task and the profile don't answer:
-   target (WordPress unless the task says Next.js), where to build (local folder and address), the Figma file and
-   which page or frames are final, live domain and host, form recipients, tracking (GTM, or on WordPress the
-   profile's tracking plugin when it names one), anything the task leaves open. A Figma link without a node id: ask
-   for the page or read the file's pages with `get_metadata`. The check needs, in the project: `npm i -D playwright
-   pixelmatch pngjs` (`references/qa.md`).
+3. **Intake, once.** One batch of questions (the question tool: > In other tools), defaults first, only what the task
+   and the profile don't answer: target (WordPress unless the task says Next.js), where to build (local folder and
+   address), the Figma file and which page or frames are final, live domain and host, form recipients, tracking (GTM, or
+   on WordPress the profile's tracking plugin when it names one), anything the task leaves open. A Figma link without a
+   node id: ask for the page or read the file's pages with `get_metadata`. The check needs, in the project: `npm i -D
+   playwright pixelmatch pngjs` (`references/qa.md`).
 4. **Inventory, once** (`references/figma.md`): pages and their desktop and mobile frames, breakpoints, tokens
    (variables, or inferred from nodes), fonts, components, video, GIF, motion and prototype interactions, hidden and
    off-canvas layers (drafts are never built), assets that need edits, design gaps. Write `_figma/inventory.md`
@@ -191,10 +203,10 @@ Details: `references/qa.md`.
    routes (and the long content test pages from phase 2) at 1440 and 375 plus the overflow sweep (320 to 1920).
    It writes the full result to `_figma/qa/` and prints a summary. Then the code gates (rule 13): PHPCS, Prettier,
    ESLint and the self-check (`references/qa.md`).
-2. One fresh read-only check (in Claude Code: a subagent on a cheaper model such as Sonnet; in other tools: a new
-   chat told to only read): the check's numbers first, images only for its failures, then the phase's checklist,
-   then a code review of the files the phase changed (`references/qa.md`). Every phase, not only the first ones.
-   It changes nothing and returns findings.
+2. One fresh read-only check (a subagent; in Claude Code on a cheaper model such as Sonnet; other tools: > In other
+   tools; without subagents, a new chat told to only read): the check's numbers first, images only for its failures,
+   then the phase's checklist, then a code review of the files the phase changed (`references/qa.md`). Every phase, not
+   only the first ones. It changes nothing and returns findings.
 3. Every finding goes into the list once: `progress.py <dir> finding add ...` (severity, page, section, what,
    expected from Figma, measured). Duplicates are merged. Nothing is fixed now, except a blocker.
 4. Publish the progress page (the run's findings with their status), report the phase's stop (rule 11) and go
@@ -206,37 +218,14 @@ fix batch), then re-check what the pass changed: each fixed item, a full read-on
 their callers, pixel only on the routes whose rendering changed (`references/qa.md` section 10; WordPress: the
 kit's fix loop). Blockers and majors at once; a later minor outside the changed code goes in the next pass, with no
 new full run. Repeat until a re-check finds 0 and none is open. Then publish the progress page, write the
-pre-launch part of the report, and ask for the go-live gate.
+pre-launch part of the report (`references/live.md` > The report), and ask for the go-live gate.
 
-## Live
+## Live and the report
 
-- **WordPress:** follow convert-to-wordpress's launch steps (backup, package, move, checks, rollback) and its plugin
-  list per environment, the one list (`references/wordpress.md` > Live): live gets exactly that list, staging the
-  three core plugins and none of the live list; its `plugin-check.py` proves it. After live QA is at 0 and the
-  report is done, Duplicator is deleted (`--done --files`). The developer types every live password and licence
-  key.
-- **Next.js:** deploy where the task says (Vercel unless it names a host); environment variables typed by the
-  developer in the host's settings; the domain and redirects as the task says.
-- **Leads portal** (both targets): mandatory on a live site with a lead form; the code is in from phase 3, the
-  endpoint and key go in on live only (typed by the developer; WordPress: Theme Settings > Leads portal, Next.js:
-  the host's environment variables), the GET check passes before the switch. A site
-  without a lead form says so in the plan. The portal's address comes from the developer's profile or the task.
-- **Live QA:** `check.mjs` on the live address over every route; forms with one real test lead each, named
-  `TEST <developer> - please ignore`, after the developer agrees, each reaching the email and the leads portal
-  (its admin shows the count per form); one of them sent from a page opened with
-  `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST` shows them in the email's Lead source table
-  and in the portal; tracking and the conversion (`generate_lead`) fire; nothing from
-  local left (search engines allowed, debug off, no `_figma/` or private files reachable, the long content test
-  pages removed: `references/qa.md`).
-
-## The report
-
-`_figma/report.md`, standing alone: **DONE** first; what was built (pages, sections, forms); how it was verified
-(QA rounds, final 0, routes and widths checked, the pass marks used, live checks); what is not verified; decisions
-and defaults taken;
-design gaps built from the design system; image edits made; what the client must supply or do (copy marked TBC,
-DNS, logins); rollback location; "Findings (not touched)". A Zoho task gets a short completion comment draft for the
-developer or Command Center to post; this skill never posts in Zoho itself.
+After the go-live gate, read `references/live.md`: the launch per target (WordPress through convert-to-wordpress's
+launch steps and its plugin list per environment, proven by its `plugin-check.py`; Next.js where the task says),
+the leads portal on every lead form, live QA, and the report (`_figma/report.md`, DONE first). The developer types
+every live password, licence key and API key.
 
 ## Project files (private)
 

@@ -5,6 +5,33 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.14] - 2026-11-24
+
+Runs the same in Codex, Antigravity and T3 Code as in Claude Code (a cross-tool audit). Claude's steps are unchanged.
+
+### Added
+
+- **SKILL.md > In other tools:** where a step names a Claude tool, convert-to-wordpress's `references/agents.md` >
+  Per tool (0.9.14 or later), plus this skill's own: the Figma MCP server, asking, the read-only QA subagent
+  (Codex `spawn_agent`, Antigravity `invoke_subagent`), the progress page as a local file, the context meter,
+  `py -3` on Windows.
+- **`progress.py render --refresh N --open`** (the same flags as convert-to-wordpress's `render.py`): the local
+  page opens once and reloads itself every N seconds; the setting is kept in progress.json (`refresh`), so every
+  later write keeps it. Tested.
+- **`scripts/oneoff.py`:** the self-check searches in Python, for any shell (also .jsx and .tsx, `.next` skipped);
+  a test proves the same hits as the grep lines in `references/qa.md`.
+- **`references/figma.md` > In other tools:** connecting the Figma MCP server per tool; not connected is a blocker.
+
+### Changed
+
+- The description carries the trigger words people type ("build this Figma design", "Figma to WordPress",
+  "Figma to Next.js"...).
+- SKILL.md under 250 lines: the Live details and the report moved, word for word, to the new `references/live.md`
+  (read at the go-live gate); rule 11's title states point to `references/progress.md` > Publishing.
+- `references/qa.md`: which section to open when; the Figma render download also in PowerShell and Python; the
+  read-only check per tool; the node-ID search also reads .jsx.
+- `references/wordpress.md`: the kit's folder in other tools.
+
 ## [0.2.13] - 2026-11-24
 
 WordPress builds point to convert-to-wordpress 0.9.12 (from a real build's retro). Next.js is unchanged apart

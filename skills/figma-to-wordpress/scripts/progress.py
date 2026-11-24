@@ -19,6 +19,11 @@ published once and then updates itself. Prints one short line per call.
   progress.py <dir> status            (summary: phases, counts, open findings, next section)
   progress.py <dir> render            (re-render the page; updated = now)
   progress.py <dir> render --pushed   (after the writes in progress-rows.json went through)
+  progress.py <dir> render --refresh 30 --open   (tools without Artifacts: the local page, open in the browser)
+
+--refresh N (5 or more; 0 turns it off) is kept in progress.json, so every later render adds a reload every N
+seconds and an open tab shows each write without a click; --open opens progress.html once in the default browser.
+The same flags as convert-to-wordpress's render.py.
 """
 import argparse
 import html
@@ -278,7 +283,20 @@ def cmd_render(a):
         print(f'OK {live.mark_pushed(a.dir)} database writes marked as pushed')
         return
     data = load(a.dir)
-    save(a.dir, data, f'OK rendered {path(a.dir, "progress.html")}')
+    if a.refresh is not None:
+        if a.refresh and a.refresh < 5:
+            fail('--refresh needs seconds (5 or more), or 0 to turn it off')
+        if a.refresh:
+            data['refresh'] = a.refresh
+        else:
+            data.pop('refresh', None)
+    save(a.dir, data, f'OK rendered {path(a.dir, "progress.html")}'
+         + (f', reloads every {data["refresh"]} s' if data.get('refresh') else ''))
+    if a.open:  # tools without a published page: the local file in the default browser
+        import pathlib
+        import webbrowser
+        uri = pathlib.Path(os.path.abspath(path(a.dir, 'progress.html'))).as_uri()
+        print(f'opened: {uri}' if webbrowser.open(uri) else f'open this in a browser: {uri}')
 
 
 # ---------- the page ----------
@@ -401,9 +419,10 @@ def render(d, data):
     log = ''.join(f'<li><span class="mute">{e(x["at"][:16].replace("T", " "))}</span> {e(x["text"])}</li>'
                   for x in reversed(data['log'][-25:]))
     title = f'{data["site"]} build progress'
+    reload = f'<meta http-equiv="refresh" content="{int(data["refresh"])}">' if data.get('refresh') else ''
     page = f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{e(title)}</title><style>{CSS}</style></head><body><main>
+{reload}<title>{e(title)}</title><style>{CSS}</style></head><body><main>
 <h1>{e(title)}</h1>
 <div class="mute">Target: {e(data["target"])}</div>
 <div class="card now">{now_card(data)}</div>
@@ -470,6 +489,8 @@ def main(argv=None):
     sub.add_parser('status')
     p = sub.add_parser('render')
     p.add_argument('--pushed', action='store_true')
+    p.add_argument('--refresh', type=int, metavar='SECONDS')
+    p.add_argument('--open', action='store_true')
     a = ap.parse_args(argv)
     {'init': cmd_init, 'now': cmd_now, 'page': cmd_page, 'set': cmd_set, 'phase': cmd_phase, 'finding': cmd_finding,
      'log': cmd_log, 'url': cmd_url, 'status': cmd_status, 'render': cmd_render}[a.cmd](a)

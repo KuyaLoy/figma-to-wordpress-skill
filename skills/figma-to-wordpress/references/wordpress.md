@@ -7,7 +7,8 @@ source is a Figma design instead of an existing website.
 ## Find the kit
 
 - Installed skill: `~/.claude/skills/convert-to-wordpress/` (a clone of github.com/KuyaLoy/convert-wordpress-skill;
-  it has `SKILL.md`, `scripts/`, `assets/`, `references/` and the developer's `profile.local.json`).
+  it has `SKILL.md`, `scripts/`, `assets/`, `references/` and the developer's `profile.local.json`). In another
+  tool, that tool's skills folder (the kit's `references/agents.md` > Where the skill lives).
 - Read its **WordPress essentials**, `references/wordpress-essentials.md` (from its 0.8.0; an older kit: its
   SKILL.md), only the part for the current phase, and use the scripts each item names by path. Not installed: ask
   the developer once where it is, or clone it with their OK.

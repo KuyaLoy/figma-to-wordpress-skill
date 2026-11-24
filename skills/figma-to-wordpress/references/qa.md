@@ -4,6 +4,9 @@ QA after a phase **collects**: it adds findings to the list and fixes nothing, e
 full QA run over everything, then fix passes, each re-checking what it changed, until a re-check finds 0 (section
 10). Numbers come first: the check script measures, and pictures are opened only for what failed.
 
+Open only the section the step needs: 1 to 4 for a section's spec and check, 5 for long content, 6 and 8 for the
+read-only check, 7 at every phase gate, 9 and 10 for findings and the fix loop.
+
 ## 1. The check script (every section, every phase)
 
 ```
@@ -67,10 +70,11 @@ state@375: swipe .testimonials .swiper => .swiper-slide:nth-child(2) visible=1
 
 For each section and designed width, once, when its spec is written: Figma's `get_screenshot` for that node with
 `maxDimension` set to the node's longer edge (so the render is 1x). Download the returned URL straight to
-`_figma/qa/figma/<page>--<section>@<W>.png` with the shell (curl); never ask for the image in the chat. No URL
-option (an older server): `download_assets` with `defaultScale` 1, or skip the pixel diff for that section and say
-so in the spec. Content that differs on purpose (a live date, a map, a carousel mid-slide) is a known diff:
-note it in the spec and judge that section by its element lines.
+`_figma/qa/figma/<page>--<section>@<W>.png` with the shell (`curl -L -o <file> "<url>"`; Windows PowerShell 5.1:
+`curl.exe`; any shell: `python3 -c "import sys, urllib.request as u; u.urlretrieve(*sys.argv[1:])" "<url>" <file>`);
+never ask for the image in the chat. No URL option (an older server): `download_assets` with `defaultScale` 1, or skip
+the pixel diff for that section and say so in the spec. Content that differs on purpose (a live date, a map, a carousel
+mid-slide) is a known diff: note it in the spec and judge that section by its element lines.
 
 ## 4. Pass marks
 
@@ -107,8 +111,9 @@ broken layout (they have no Figma render).
 
 ## 6. The read-only check (every phase)
 
-A fresh read-only check that changes nothing (in Claude Code: a subagent on a cheaper model such as Sonnet; in
-other tools: a new chat told to only read). Its brief (fill the brackets):
+A fresh read-only check that changes nothing: a subagent (Claude Code: on a cheaper model such as Sonnet; Codex
+`spawn_agent`; Antigravity `invoke_subagent`, not a new conversation); without subagents, a new chat told to only
+read. Its brief (fill the brackets):
 
 > Read-only QA of [site] after phase [n]. Change nothing. Read `_figma/progress.json`, the phase checklist below
 > and the check's latest JSON in `_figma/qa/`. Start from the numbers: every failing line there is a finding. Open
@@ -131,14 +136,16 @@ SKILL.md rule 13 in commands. Run in the theme (WordPress) or the app (Next.js);
   with a reason on the same line.
 - **Prettier and ESLint:** `npx prettier --check .` and `npx eslint .` (Next.js: `npm run lint`), with the
   project's configs; build output, vendor and node_modules ignored.
-- **Self-check** (grep, or rg the same patterns), over the theme's or app's source; each hit is fixed or kept with a
-  one-line reason in the report:
+- **Self-check** over the theme's or app's source; each hit is fixed or kept with a one-line reason in the report.
+  In any shell (PowerShell included): `python3 <kit>/scripts/oneoff.py <theme or app>` (the same searches as the
+  grep lines below; a WordPress theme can use convert-to-wordpress's `scripts/report/text-check.py oneoff <theme>`).
+  With grep or rg:
 
 ```
 X="--exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=dist --exclude-dir=build --exclude-dir=.next"
 grep -rnE $X --include='*.php' --include='*.js' --include='*.jsx' --include='*.tsx' -e '[a-z]-\[(#|[0-9])' .
 grep -rnE $X --include='*.css' -e '#[0-9a-fA-F]{3,8}\b' . | grep -v tokens
-grep -rnE $X --include='*.php' --include='*.js' --include='*.tsx' -e '[0-9]+:[0-9]+|\b[A-Z][A-Z0-9]+-T[0-9]+\b' .
+grep -rnE $X --include='*.php' --include='*.js' --include='*.jsx' --include='*.tsx' -e '[0-9]+:[0-9]+|\b[A-Z][A-Z0-9]+-T[0-9]+\b' .
 grep -rn $X --include='*.php' -e 'phpcs:ignore' -e 'phpcs:disable' .
 ```
 

@@ -12,6 +12,17 @@ names are the same.
 
 Links: `https://www.figma.com/design/<fileKey>/<name>?node-id=12-345` means file `<fileKey>`, node `12:345`.
 
+## In other tools
+
+The Figma MCP server is connected once per machine in the tool that runs the build: Figma's remote server
+(`https://mcp.figma.com/mcp`, signed in to Figma when the tool asks) or the desktop app's local server
+(`http://127.0.0.1:3845/mcp`, turned on in the desktop app's preferences). Claude Code: `claude mcp add --transport
+http figma <address>`; Codex: an `[mcp_servers.figma]` entry with its `url` in `~/.codex/config.toml`; Antigravity:
+its MCP server settings (`mcp_config.json`); T3 Code: the agent it runs. Check the tool's MCP docs for the current
+form. Tool names carry the server's prefix (for example `mcp__figma__get_design_context`); the calls are the same.
+Not connected: tell the developer in one line how to connect it and wait (a blocker); never build by eye from
+screenshots instead.
+
 ## Call discipline (keeps usage low)
 
 - One node per call. Never `get_design_context` on a whole page; never the same node twice. What a call returns is

@@ -54,7 +54,9 @@ Or as a git clone (updates with `git pull --ff-only`): clone this repository and
 Other AI tools: link the same clone's `skills/figma-to-wordpress/` into the tool's skills folder under the name
 `figma-to-wordpress` (for example `~/.agents/skills/` for Codex, Cursor and Devin Desktop, `~/.gemini/config/skills/`
 for Antigravity, `~/.config/opencode/skills/` for OpenCode). The steps are plain words; where a step names a Claude
-tool (the read-only subagent, a message to Command Center), SKILL.md gives the fallback.
+tool, SKILL.md > In other tools gives the fallback (the question tool, subagents, the progress page as a local file
+that reloads itself, the context meter, connecting the Figma MCP server), with convert-to-wordpress's
+`references/agents.md` > Per tool. Every script is Python or Node, so it runs in PowerShell too.
 
 ## Use
 
@@ -74,8 +76,9 @@ Nothing goes live before your go. Its planning files (`_figma/`) are never serve
 .claude-plugin/plugin.json            the plugin
 .claude-plugin/marketplace.json       this repo as a one-plugin marketplace
 skills/figma-to-wordpress/SKILL.md    the workflow and its rules
-skills/figma-to-wordpress/references/ figma, wordpress, nextjs, qa, progress
-skills/figma-to-wordpress/scripts/    progress.py and live.py (progress page), check.mjs (browser check)
+skills/figma-to-wordpress/references/ figma, wordpress, nextjs, qa, progress, live
+skills/figma-to-wordpress/scripts/    progress.py and live.py (progress page), check.mjs (browser check),
+                                      oneoff.py (the self-check searches)
 tests/                                tests for the scripts
 CHANGELOG.md                          what changed in each version
 AGENTS.md                             rules for changing the skill

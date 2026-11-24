@@ -4,6 +4,7 @@ import os
 import sys
 import tempfile
 import unittest
+import webbrowser
 from contextlib import redirect_stdout
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'skills', 'figma-to-wordpress', 'scripts'))
@@ -87,6 +88,27 @@ class ProgressTest(unittest.TestCase):
     def page(self):
         with open(os.path.join(self.d, 'progress.html'), encoding='utf-8') as f:
             return f.read()
+
+    def test_render_refresh_kept_and_open(self):
+        """0.2.14: the local page for tools without Artifacts reloads itself and opens once."""
+        self.assertNotIn('http-equiv="refresh"', self.page())
+        opened = []
+        real = webbrowser.open
+        webbrowser.open = lambda uri: opened.append(uri) or True
+        try:
+            out = run(self.d, 'render', '--refresh', '30', '--open')
+        finally:
+            webbrowser.open = real
+        self.assertIn('reloads every 30 s', out)
+        self.assertEqual(len(opened), 1)
+        self.assertTrue(opened[0].startswith('file:') and opened[0].endswith('progress.html'))
+        run(self.d, 'set', 'home', 'hero', 'building')  # a later write keeps the reload
+        self.assertIn('<meta http-equiv="refresh" content="30">', self.page())
+        self.assertEqual(self.data()['refresh'], 30)
+        self.assertIn('EXIT', run(self.d, 'render', '--refresh', '2'))
+        run(self.d, 'render', '--refresh', '0')
+        self.assertNotIn('http-equiv="refresh"', self.page())
+        self.assertNotIn('refresh', self.data())
 
     def test_now_line_and_every_finding_with_status(self):
         """0.2.6: Now/Next at the top with the start time; open, fixed and decided findings, counted per run."""
