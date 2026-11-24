@@ -95,7 +95,8 @@ WordPress; only the stack differs.
   - A 5 second timeout (`AbortSignal.timeout(5000)`); 200 and 202 count as delivered; any failure is logged with the
     status only and never blocks the visitor or the thank-you page.
   - Off unless both variables are set: they are set only for the live (Production) environment on the host, never
-    in `.env.local` or preview deployments. `.env.example` lists the two names only.
+    in `.env.local` or preview deployments. `.env.example` lists the two names only. They stay environment
+    variables here (WordPress keeps them in ACF Theme Settings; Next.js has no ACF).
   - The portal's own Next.js example (in its admin) is the reference; the portal's address comes from the
     developer's profile or the task, never from this skill.
 

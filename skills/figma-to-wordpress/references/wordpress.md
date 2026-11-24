@@ -28,8 +28,9 @@ with its source and size, unless the developer's profile says otherwise):
    this local site, never written to any file of the build. No default in the profile: the developer types it.
 4. Plugins: ACF PRO from the developer's zip (`plugin_zips.acf_pro`), activated by the profile's
    `acf_pro_license`, which the kit's `make-wp-config.py` writes only into local wp-config files (its
-   `references/setup.md` > Starter plugins); Contact Form 7, Yoast SEO, and the profile's `required` extra
-   plugins with `"where": "all"` (or no `where`), never its `"where": "live"` ones; Redirection only if the site
+   `references/setup.md` > Starter plugins); Contact Form 7, Yoast SEO, Duplicator Pro from the profile's
+   `plugin_zips.duplicator_pro` when set (0.9.12 or later), and the profile's `required` extra plugins with
+   `"where": "all"` (or no `where`), never its `"where": "live"` ones; Redirection only if the site
    needs redirects. The list per environment is the kit's, never copied here: its
    `references/wordpress-essentials.md` > Plugins (0.9.11 or later). Nothing from the live list locally or on
    staging (Live, below).
@@ -56,7 +57,9 @@ page with the type scale and colours, deleted after), `_figma/` answers 403.
 - Build each section as a template part with `data-section="<slug>"` on its root (the check script finds it there).
   Markup from the spec; fields from the start; seeded with the Figma copy verbatim, so the page shows the design
   right after seeding. Anything used on two pages (phone, address, CTA, footer, social links) lives in Theme
-  Settings.
+  Settings: one group with tabs across the top (the kit's field builder default, placement "top"; "left" only when
+  the developer asks), plus the kit's Leads portal group, which the builder always writes (keep it when the example
+  spec is replaced): the kit's `references/build.md` > Theme Settings (0.9.12 or later).
 - Field names editors understand (labels in plain words, instructions where needed, defaults from Figma).
 - Images go into the Media Library and into their fields (never hard-coded); the theme prints them with
   `wp_get_attachment_image()` and correct `sizes`, the LCP image with `fetchpriority="high"` and no lazy loading.
@@ -71,9 +74,10 @@ the form as the design shows it, branded HTML emails for the notification and th
 thank-you redirect). The form's look comes from the Figma spec: fields, labels, errors and success states (states
 Figma lacks are built from the design system and listed).
 
-The leads portal: the kit's rule as it is (its `references/forms-email.md` > The leads portal, 0.9.4 or later): its
-sender posts each lead form whether the email went out or failed, the code is in from this phase, the endpoint and
-key live only in the live wp-config, and it is off locally and on staging. Never copied here.
+The leads portal: the kit's rule as it is (its `references/forms-email.md` > The leads portal, 0.9.12 or later):
+its sender posts each lead form whether the email went out or failed, the code is in from this phase, and it is off
+locally and on staging. The address and password always live in Theme Settings > Leads portal (administrators only,
+seeded empty, pasted on live; wp-config constants win when defined). Never copied here.
 
 Form attribution: the kit's rule as it is (its `references/forms-email.md` > Where the lead came from, 0.9.10 or
 later): built into the kit's theme on every Contact Form 7 form, nothing to set up: the first visit and the latest
@@ -108,13 +112,20 @@ kit's `references/seo-security.md` > Performance).
 ## Live
 
 The kit's launch steps, one at a time, with the developer doing every step that needs a password or a payment.
+The package: the kit's `duplicator-filters.py` or `package.py` (0.9.12 or later), which leave out its private and
+agent files (`_plan`, `_setup`, `tasks`, `eod`, `.agents`, `AGENTS.md`, `handoff*`); `_figma/` is not on its lists,
+so add `<root>/_figma;` to the filters by hand. Report the package check with its output (the archive's top level
+it prints; `package.py --check-zip <archive> <theme>` for a backup built in wp-admin), and `_figma` must not be in
+it. Staging after a Duplicator import: the kit's must-use environment file and `acf-json/.htaccess` travel in the
+package; check the environment says staging and `live-qa.py --hidden` passes (its `references/launch.md`).
 After the move: **the live plugin checklist**, the one list, in the kit's `assets/launch/RUNBOOK.template.md`
 section 4 (and `references/launch.md` > After the installer, 0.9.11 or later); never copied here. In short: the
 profile's live plugins from the developer's plugin folder (`"where": "live"` ones installed here first; each zip's
 version checked before go-live), Contact Form CFDB7, Converter for Media, Redirection when the site has any
 redirect, the reCAPTCHA v3 keys on every form, the cache plugin (LiteSpeed Cache unless the profile names another)
-and the leads portal on every lead form (the project in the portal admin, endpoint and key pasted into the live
-wp-config, the kit's `scripts/report/leads-check.py` GET check, then one TEST lead per form in the portal).
+and the leads portal on every lead form (the project in the portal admin, the address and password pasted into
+Theme Settings > Leads portal on live, the kit's `scripts/report/leads-check.py --site` check, then one TEST lead
+per form in the portal).
 Live has exactly the kit's list and nothing else unless the task asks (site.json `"task_plugins"`). Staging gets
 ACF PRO, Contact Form 7 and Yoast SEO (Redirection if needed), none of the live list, and stays noindex. Then search
 engines allowed, debug off, live QA, where the kit's `scripts/report/plugin-check.py <wp_root>/_plan/site.json --env

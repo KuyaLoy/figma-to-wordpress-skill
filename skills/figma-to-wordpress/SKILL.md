@@ -93,6 +93,10 @@ launch): `references/wordpress.md` says which parts and where to find it. Never 
       `text-[19px]`, `bg-[#...]` or a hex in CSS; a shared map (colours, variants) lives once.
     - **Ship only what is used:** only the kit files the build uses; no unused helpers, empty configs or seed files
       in the theme or app.
+    - **Kit files as shipped; checks with their output** (WordPress: the kit's rule 16, 0.9.12 or later): a kit file
+      is copied with the prefix swap only; any site change to one is listed with its reason (the file, the change,
+      why) in the task's notes. A check is reported only with its output (the tool's OK or FAIL line and counts,
+      pasted), never "passes", "seeded" or "0 private" from memory.
     - **Comments say why:** no Figma node IDs, no ticket tags; history lives in git.
     - **Size limits:** split a section past about 15 options or 250 lines; one job per file (logic, markup and JS
       apart); JS enqueued or imported, never inline.
@@ -214,7 +218,8 @@ pre-launch part of the report, and ask for the go-live gate.
 - **Next.js:** deploy where the task says (Vercel unless it names a host); environment variables typed by the
   developer in the host's settings; the domain and redirects as the task says.
 - **Leads portal** (both targets): mandatory on a live site with a lead form; the code is in from phase 3, the
-  endpoint and key go in on live only (typed by the developer), the GET check passes before the switch. A site
+  endpoint and key go in on live only (typed by the developer; WordPress: Theme Settings > Leads portal, Next.js:
+  the host's environment variables), the GET check passes before the switch. A site
   without a lead form says so in the plan. The portal's address comes from the developer's profile or the task.
 - **Live QA:** `check.mjs` on the live address over every route; forms with one real test lead each, named
   `TEST <developer> - please ignore`, after the developer agrees, each reaching the email and the leads portal

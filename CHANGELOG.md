@@ -5,6 +5,26 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.13] - 2026-11-24
+
+WordPress builds point to convert-to-wordpress 0.9.12 (from a real build's retro). Next.js is unchanged apart
+from one line.
+
+### Changed
+
+- **WordPress** (`references/wordpress.md`), pointing to the kit, never copying it:
+  - The leads portal's address and password always in Theme Settings > Leads portal (administrators only, seeded
+    empty, pasted on live; wp-config constants win when defined); live checks with `leads-check.py --site`.
+  - Theme Settings tabs across the top (the kit's default) and the kit's Leads portal group kept.
+  - Duplicator Pro installed in setup from the profile's `plugin_zips.duplicator_pro` when set.
+  - The package leaves out the kit's private and agent files; `_figma/` is added to the filters by hand and must not
+    be in the archive's listing; the package check is reported with its output (`package.py --check-zip`).
+  - Staging after a Duplicator import: the kit's must-use environment file and `acf-json/.htaccess`; the
+    environment and `live-qa.py --hidden` checked.
+- **SKILL.md** rule 13: kit files copied with the prefix swap only (changes listed with why); a check is reported
+  only with its output. Live: where the portal settings go per target.
+- **Next.js** (`references/nextjs.md`): one line, the portal settings stay environment variables.
+
 ## [0.2.12] - 2026-11-23
 
 The default plugin stack per environment, as convert-to-wordpress 0.9.11. Next.js is unchanged.
