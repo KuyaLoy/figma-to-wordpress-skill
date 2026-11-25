@@ -18,8 +18,9 @@ source is a Figma design instead of an existing website.
 
 ## Phase 1: setup in one go
 
-Run the kit's setup without stopping at each step (one OK for the whole list of downloads and installs, each named
-with its source and size, unless the developer's profile says otherwise):
+Run the kit's setup (its `references/phase-steps.md` > P1 Setup, 0.10.0 or later) without stopping at each step (one OK
+for the whole list of downloads and installs, each named with its source and size, unless the developer's profile says
+otherwise):
 
 1. The local site: folder, address and database as the kit's doctor suggests (or the task says).
 2. WordPress downloaded and checked, `wp-config.php` written by the kit's scripts (local environment, debug log):
@@ -112,13 +113,13 @@ kit's `references/seo-security.md` > Performance).
 
 ## Live
 
-The kit's launch steps, one at a time, with the developer doing every step that needs a password or a payment. The
-package: the kit's `duplicator-filters.py` or `package.py` (0.9.13 or later), which leave out its private and agent
-files (`_plan`, `_setup`, `tasks`, `eod`, `.agents`, `AGENTS.md`, `handoff*`) and this build's `_figma/`. Report the
-package check with its output (the archive's top level it prints; `package.py --check-zip <archive> <theme>` for a
-backup built in wp-admin), and `_figma` must not be in it. Staging after a Duplicator import: the kit's must-use
-environment file and `acf-json/.htaccess` travel in the package; check the environment says staging and `live-qa.py
---hidden` passes (its `references/launch.md`).
+The kit's launch steps (its `references/phase-steps.md` > P6 Launch, 0.10.0 or later), one at a time, with the developer
+doing every step that needs a password or a payment. The package: the kit's `duplicator-filters.py` or `package.py`
+(0.9.13 or later), which leave out its private and agent files (`_plan`, `_setup`, `tasks`, `eod`, `.agents`,
+`AGENTS.md`, `handoff*`) and this build's `_figma/`. Report the package check with its output (the archive's top level
+it prints; `package.py --check-zip <archive> <theme>` for a backup built in wp-admin), and `_figma` must not be in it.
+Staging after a Duplicator import: the kit's must-use environment file and `acf-json/.htaccess` travel in the package;
+check the environment says staging and `live-qa.py --hidden` passes (its `references/launch.md`).
 After the move: **the live plugin checklist**, the one list, in the kit's `assets/launch/RUNBOOK.template.md`
 section 4 (and `references/launch.md` > After the installer, 0.9.11 or later); never copied here. In short: the
 profile's live plugins from the developer's plugin folder (`"where": "live"` ones installed here first; each zip's

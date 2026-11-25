@@ -5,6 +5,23 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-25
+
+A slimmer SKILL.md: less to load in every chat, every rule kept.
+
+### Changed
+
+- **SKILL.md** about 4,950 tokens, 19,800 characters (was about 5,600): the section loop's five steps and the QA steps moved,
+  word for word, to the new `references/phase-steps.md`; SKILL.md keeps the rules word for word, the phase table,
+  the statuses and a short summary of each loop with an "open when" pointer.
+- **`references/wordpress.md`:** setup and launch point to convert-to-wordpress's `references/phase-steps.md` >
+  P1 Setup and > P6 Launch (0.10.0 or later) instead of its SKILL.md.
+
+### Added
+
+- `tests/test_slim_030.py`: nothing lost from the 0.2.15 SKILL.md (every heading and line is still in SKILL.md or
+  a reference), the rules unchanged, the pointers resolve, SKILL.md under 20,000 characters and 250 lines.
+
 ## [0.2.15] - 2026-11-25
 
 ### Changed
