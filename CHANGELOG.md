@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.2.15] - 2026-11-25
+
+### Changed
+
+- **SKILL.md > In other tools:** browser steps in Antigravity drive the lead's Chrome through the chrome-devtools
+  MCP, as convert-to-wordpress's `references/agents.md` > Per tool says (0.9.16 or later, with its tab rules); the
+  built-in browser pane only as a fallback.
+- **`references/wordpress.md` > Live:** the package step points to convert-to-wordpress 0.9.13 or later, whose
+  filters and package check already leave out `_figma/`; the step that added it by hand is gone.
+
 ## [0.2.14] - 2026-11-24
 
 Runs the same in Codex, Antigravity and T3 Code as in Claude Code (a cross-tool audit). Claude's steps are unchanged.
