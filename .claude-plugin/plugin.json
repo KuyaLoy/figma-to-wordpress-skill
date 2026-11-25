@@ -1,6 +1,6 @@
 {
   "name": "figma-to-wordpress",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Builds a Figma design 1:1 as a WordPress site (ACF PRO, Contact Form 7, Yoast) or a Next.js site, in one chat: inventory once, phase by phase with QA that collects findings, one fix loop until QA finds 0, and a progress page that shows what is done and what is not.",
   "author": { "name": "KuyaLoy", "url": "https://github.com/KuyaLoy" },
   "homepage": "https://github.com/KuyaLoy/figma-to-wordpress-skill",

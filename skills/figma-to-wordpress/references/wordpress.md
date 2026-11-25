@@ -81,6 +81,10 @@ its sender posts each lead form whether the email went out or failed, the code i
 locally and on staging. The address and password always live in Theme Settings > Leads portal (administrators only,
 seeded empty, pasted on live; wp-config constants win when defined). Never copied here.
 
+Where leads are stored: the kit's rule 17 (Leads: CFDB7 only) and its `references/forms-email.md` > Where leads are
+stored: CFDB7 only (0.10.1 or later), as they are. Its pre-QA self-check reports any storage of the build's own as a
+`lead-storage` finding (file:line). Never copied here.
+
 Form attribution: the kit's rule as it is (its `references/forms-email.md` > Where the lead came from, 0.9.10 or
 later): built into the kit's theme on every Contact Form 7 form, nothing to set up: the first visit and the latest
 campaign visit in hidden fields, and the lead email's Lead source table (its title row in `KITWP_BRAND_COLOUR`, set

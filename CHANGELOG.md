@@ -5,6 +5,16 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-25
+
+### Changed
+
+- **WordPress** (`references/wordpress.md` > Phase 3): where leads are stored points to convert-to-wordpress's
+  rule 17 (Leads: CFDB7 only) and its `references/forms-email.md` > Where leads are stored: CFDB7 only (0.10.1 or
+  later), and to its self-check's `lead-storage` finding; nothing copied.
+- **Next.js** (`references/nextjs.md` > Phase 3): one line, leads go only to the email and the leads portal, never
+  to a database of the build's own.
+
 ## [0.3.0] - 2026-11-25
 
 A slimmer SKILL.md: less to load in every chat, every rule kept.

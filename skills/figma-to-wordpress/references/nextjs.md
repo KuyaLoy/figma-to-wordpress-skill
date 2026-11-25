@@ -41,6 +41,8 @@ WordPress; only the stack differs.
 - Mail through the task's service (Resend, SMTP, the client's provider). HTML email built from the design's colours
   and logo; a plain-text part too. Redirect to `/thank-you` (noindex) where the conversion fires.
 - Without JavaScript the form still posts (progressive enhancement with a Server Action).
+- Leads go only to the email and the leads portal (below), never to a database, file or admin page of the build's
+  own.
 - **Where the lead came from (form attribution),** on every lead form by default, no package; the same names, caps,
   Lead source table and event as convert-to-wordpress 0.9.10 (its `references/forms-email.md` > Where the lead came
   from):
