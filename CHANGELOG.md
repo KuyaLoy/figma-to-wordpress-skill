@@ -5,6 +5,36 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-27
+
+Lean tool output: long command output goes to a log, the chat gets the result line and the failures (the same idea
+as convert-to-wordpress 0.13.0 rule 18). No rule, phase or check removed.
+
+### Added
+
+- SKILL.md > Long output (always), after the rules: output over about 50 lines goes to `_figma/logs/<step>.log`; the
+  chat and every report get the command, its result line, the failures and the log path, as `check.mjs` does with
+  `_figma/qa/`. Rules 1 to 13, the phase table and "Done means" unchanged.
+- `references/qa.md` section 11 "Long output to a log (every command)": which commands log, the bash and Windows
+  PowerShell 5.1 forms (`Out-File -Encoding utf8`), a WordPress build may use the kit's `_plan/logs/` instead, what
+  the chat and reports quote, the compact flags (npm, Playwright `--reporter=line`, Prettier `--log-level warn`,
+  PHPCS `-q --report=summary`, composer, `git status --porcelain`, Lighthouse JSON to a log), logs private (inside
+  `_figma/`) and never holding a secret. The section index line names section 11.
+- `references/other-tools.md`: the "In other tools" bullets, moved word for word from SKILL.md (which keeps the
+  section, its intro and a pointer, and lists the file in the kit table). SKILL.md 18,218 B (was 18,579).
+- `tests/test_lean_output_050.py`; `tests/test_token_diet_040.py` lists the 0.3.2 reference lines changed on
+  purpose (CHANGED_REFS_050).
+
+### Changed
+
+- `references/qa.md` section 1: the check's install with `--no-audit --no-fund --loglevel=error`; section 7: PHPCS
+  runs `vendor/bin/phpcs -q --report=summary`, the full report to `_figma/logs/phpcs.log` only when it finds
+  something.
+- `references/nextjs.md` > Speed: `npm run build > _figma/logs/build.log 2>&1`, the chat gets the result line and
+  any warning.
+- `references/phase-steps.md` > What each phase must prove, 1 Setup: `npm run build` OK as its result line, the log
+  in `_figma/logs/build.log`.
+
 ## [0.4.1] - 2026-11-27
 
 The company attribution standard and the agency badge from convert-to-wordpress 0.12.0, for both targets.

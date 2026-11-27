@@ -120,8 +120,10 @@ WordPress; only the stack differs.
 - `/thank-you` noindex and out of the sitemap; a real `not-found.tsx` with the design's parts.
 - Security headers in `next.config.ts` (`X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` or CSP
   `frame-ancestors`, `Permissions-Policy`); no secrets in client code (`NEXT_PUBLIC_` only for public values).
-- Speed: `next build` with no warnings; check the bundle for anything heavy; `next/script` with `lazyOnload` or
-  `afterInteractive` for third-party scripts (GTM per the task); PageSpeed Insights on the deployed preview.
+- Speed: `next build` with no warnings (`npm run build > _figma/logs/build.log 2>&1`; the chat gets the result
+  line and any warning, `references/qa.md` section 11); check the bundle for anything heavy; `next/script` with
+  `lazyOnload` or `afterInteractive` for third-party scripts (GTM per the task); PageSpeed Insights on the deployed
+  preview.
 
 ## Live
 

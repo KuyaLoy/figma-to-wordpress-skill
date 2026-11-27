@@ -25,6 +25,7 @@ Paths are relative to this file's folder. Read a reference only when its step co
 | `references/progress.md` | progress.json and the progress page | Start; when publishing |
 | `references/start.md` | Intake, inventory and plan in full | Start, once |
 | `references/phase-steps.md` | The section loop, the QA steps with their commands, what each phase must prove | Phase 2's start; every phase end |
+| `references/other-tools.md` | This skill's own steps in Codex, Antigravity and other tools | Not in Claude Code |
 | `references/live.md` | The launch per target, the leads portal, live QA, the report | Go-live gate; the report |
 | `scripts/progress.py` | Now/Next, pages, sections, statuses, findings, log; renders the progress page | Every step |
 | `scripts/live.py` | The live progress page and its database rows (called by progress.py) | Never by hand |
@@ -39,14 +40,7 @@ launch): `references/wordpress.md` says which parts and where to find it. Never 
 The steps are plain words. Where one names a Claude tool, open convert-to-wordpress's `references/agents.md` > Per
 tool (0.9.14 or later: install folders, loading the skill, asking, subagents, the browser, the context meter, the
 title) and do what its column says. This skill's own steps there:
-- **Figma:** the Figma MCP server connected in this tool (`references/figma.md` > In other tools), else a blocker.
-- **Asking:** the tool's question tool; without one, numbered options with the recommended one first, then wait.
-- **The read-only QA check:** a subagent (Codex `spawn_agent`, Antigravity `invoke_subagent`), not a new chat.
-- **Browser steps** (wp-admin, live checks, test leads): Antigravity drives the lead's Chrome through the
-  chrome-devtools MCP (the kit's Per tool line and tab rules, 0.9.16 or later); its own pane only as a fallback.
-- **The progress page:** the local file, `progress.py <dir> render --refresh 30 --open` once (`references/progress.md`).
-- **Context:** Codex `/status`; no meter (Antigravity): checkpoint at every page end and phase end.
-- **Shell:** every script is Python or Node; on Windows `py -3` or `python` where a step says `python3`.
+`references/other-tools.md` (read it once at the start in those tools).
 
 ## Rules (always)
 
@@ -121,6 +115,12 @@ title) and do what its column says. This skill's own steps there:
 
 In a Command Center project (handoff.md says `Mode: Command Center`) this chat is a task chat: its Worker rules
 apply as well (go quoted in notes.md, stop messages, no Zoho posts). Where they and this skill differ, they win.
+
+## Long output (always)
+
+Output over about 50 lines (installs, builds, PHPCS, Lighthouse, test runs) goes to `_figma/logs/<step>.log`; the
+chat and every report get the command, its result line, the failures and the log path, as `check.mjs` does with
+`_figma/qa/`. Compact flags and both shells' forms: `references/qa.md` section 11.
 
 ## Start
 

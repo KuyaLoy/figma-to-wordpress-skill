@@ -73,7 +73,8 @@ logged (`progress.py status`).
 - **Plan (no code):** `_figma/brief.md`, `inventory.md`, `tokens.json`, `plan.md` (ls); every page and section on
   the board (`progress.py status`); forms and where leads go, placeholders, the live plugin checklist (WordPress),
   tracking, the Recommended additions table (plan.md); the developer's OK (quoted in notes.md, `progress.py log`).
-- **1 Setup:** WordPress: cwp's P1 `setup.py` and PHPCS 0 items; Next.js: `npm run build` OK, `npx tsc --noEmit` 0;
+- **1 Setup:** WordPress: cwp's P1 `setup.py` and PHPCS 0 items; Next.js: `npm run build` OK (result line; log in
+  `_figma/logs/build.log`), `npx tsc --noEmit` 0;
   both: the type scale and colours from `tokens.json` on a test page (check.mjs el rows), no PHP notices (debug.log)
   and no console errors (check.mjs page rows), `_figma/` 403 or outside `public/` (curl -I).
 - **2 Pages:** every section `built` after `check.mjs` exit 0 at 1440 and 375 (box, pixel, el, state rows); the

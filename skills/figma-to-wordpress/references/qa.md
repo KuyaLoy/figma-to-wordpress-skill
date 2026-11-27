@@ -5,7 +5,7 @@ full QA run over everything, then fix passes, each re-checking what it changed, 
 10). Numbers come first: the check script measures, and pictures are opened only for what failed.
 
 Open only the section the step needs: 1 to 4 for a section's spec and check, 5 for long content, 6 and 8 for the
-read-only check, 7 at every phase gate, 9 and 10 for findings and the fix loop.
+read-only check, 7 at every phase gate, 9 and 10 for findings and the fix loop, 11 for any long command.
 
 ## 1. The check script (every section, every phase)
 
@@ -37,8 +37,9 @@ line and at most 30 issue lines. Exit 0 = no issues, 1 = issues, 2 = the check c
 "box|pixel|el|state|page", "route", "width", "selector", "state", "prop", "ref", "got", "pass", "image"}],
 "summary": {"pass": n, "fail": n}}`. `ref` is Figma's value, `image` a diff image for failing pixel rows only.
 
-Needs, in the theme or the Next.js app: `npm i -D playwright pixelmatch pngjs` and `npx playwright install
-chromium` (it falls back to the installed Chrome). In Git Bash a route like `/about/` is fine.
+Needs, in the theme or the Next.js app: `npm i -D playwright pixelmatch pngjs --no-audit --no-fund --loglevel=error`
+and `npx playwright install chromium` (it falls back to the installed Chrome). In Git Bash a route like `/about/`
+is fine.
 
 ## 2. Spec lines the script reads
 
@@ -131,7 +132,8 @@ runs at every phase gate, not only the first ones.
 
 SKILL.md rule 13 in commands. Run in the theme (WordPress) or the app (Next.js); every failure is a finding.
 
-- **PHPCS** (WordPress): `vendor/bin/phpcs` with the theme's `phpcs.xml`, where the theme's own escaping and
+- **PHPCS** (WordPress): `vendor/bin/phpcs -q --report=summary` (the full report to `_figma/logs/phpcs.log` only
+  when it finds something) with the theme's `phpcs.xml`, where the theme's own escaping and
   sanitising helpers are registered (`WordPress.Security.EscapeOutput` property `customEscapingFunctions`, and
   `customSanitizingFunctions` where used). No `phpcs:disable` and no blanket `phpcs:ignore`; one narrow ignore only
   with a reason on the same line.
@@ -212,3 +214,24 @@ items in code already reviewed, and a second full pixel run of 600 shots found n
 **WordPress:** the convert-to-wordpress kit's pre-QA self-check and its fix loop apply as they are (its
 `references/phases-and-qa.md` > The self-check before every QA run, and > The fix loop, 0.9.6 or later; never
 copied here); this section is the same rule in this skill's words, and it is the rule for Next.js.
+
+## 11. Long output to a log (every command)
+
+SKILL.md > Long output in commands. The model is `check.mjs`: the full JSON in `_figma/qa/`, one summary line and at
+most 30 issue lines on screen.
+
+- A command that can print more than about 50 lines (npm installs, `next build`, PHPCS, Prettier and ESLint on a
+  dirty tree, Playwright, Lighthouse, WP-CLI lists, server logs) writes to `_figma/logs/<step>.log` (`mkdir -p
+  _figma/logs` once; `<command> > _figma/logs/build.log 2>&1`; Windows PowerShell 5.1: `<command> *>&1 | Out-File
+  -Encoding utf8 _figma/logs/build.log`, as 5.1 writes UTF-16 otherwise). A WordPress build may use the kit's
+  `_plan/logs/` instead (convert-to-wordpress rule 18, 0.13.0 or later); one folder per build.
+- The chat shows the command, its result line and the failures only (the last 20 lines, or a search for
+  `error|warn|fail`); open the log only when they do not explain the problem. A stop report, a QA finding and the
+  phase's `Pass|Fail` evidence quote the command, the result line and the log path.
+- Compact flags first: `npm install --no-audit --no-fund --loglevel=error` (and `npm i -D ...` the same);
+  `npx playwright test --reporter=line`; `npx prettier --check . --log-level warn` (lists only the failing files);
+  `vendor/bin/phpcs -q --report=summary`; `composer install --no-interaction --no-progress`; `git status
+  --porcelain`; Lighthouse with `--output=json --output-path=_figma/logs/lighthouse.json --quiet`, then only its
+  four scores read from the JSON; `-q` or `--quiet` where a tool has it.
+- `_figma/logs/` is inside `_figma/`, so it is never served and never committed (SKILL.md > Project files). No log
+  holds a password, licence key or API key (rule 8): mask one before it is written.

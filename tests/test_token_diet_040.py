@@ -68,6 +68,14 @@ CHANGED_REFS_041 = ("`?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=T
                     "from the design's brand colour). The hidden fields")
 
 
+# 0.3.2 reference lines changed on purpose in 0.5.0: long output to a log and compact flags at the command sites
+# (tests/test_lean_output_050.py).
+CHANGED_REFS_050 = ('- Speed: `next build` with no warnings;', '`afterInteractive` for third-party scripts',
+                    '- **1 Setup:** WordPress:', 'read-only check, 7 at every phase gate,',
+                    'Needs, in the theme or the Next.js app:', 'chromium` (it falls back',
+                    "- **PHPCS** (WordPress): `vendor/bin/phpcs` with the theme's")
+
+
 def read(*parts):
     with open(os.path.join(SKILL_DIR, *parts), encoding='utf-8') as fh:
         return fh.read()
@@ -179,7 +187,8 @@ class TokenDiet(unittest.TestCase):
             lines = {line.strip() for line in now.splitlines()}
             for line in prev.splitlines():
                 t = line.strip()
-                if t and t not in lines and not any(t.startswith(c) for c in CHANGED_REFS_040 + CHANGED_REFS_041):
+                if t and t not in lines and not any(t.startswith(c) for c in CHANGED_REFS_040 + CHANGED_REFS_041
+                                                                     + CHANGED_REFS_050):
                     self.assertIn(t, have, f'lost from 0.3.2 {r}: {t}')
 
 
