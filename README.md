@@ -76,7 +76,7 @@ Nothing goes live before your go. Its planning files (`_figma/`) are never serve
 .claude-plugin/plugin.json            the plugin
 .claude-plugin/marketplace.json       this repo as a one-plugin marketplace
 skills/figma-to-wordpress/SKILL.md    the workflow and its rules
-skills/figma-to-wordpress/references/ figma, wordpress, nextjs, qa, progress, phase-steps, live
+skills/figma-to-wordpress/references/ figma, wordpress, nextjs, qa, progress, start, phase-steps, live
 skills/figma-to-wordpress/scripts/    progress.py and live.py (progress page), check.mjs (browser check),
                                       oneoff.py (the self-check searches)
 tests/                                tests for the scripts

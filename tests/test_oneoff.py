@@ -29,7 +29,7 @@ EXPECTED = {
     ('components/Hero.tsx', 2, 'node ID or ticket tag'),
     ('template-parts/hero.php', 1, 'phpcs ignore'),
 }
-GREP = [  # the grep lines in references/qa.md section 7: (options, patterns)
+GREP = [  # the grep lines references/qa.md section 7 had before 0.4.0, still pinned: (options, patterns)
     (['-rnE', '--include=*.php', '--include=*.js', '--include=*.jsx', '--include=*.tsx'], [r'[a-z]-\[(#|[0-9])']),
     (['-rnE', '--include=*.css'], [r'#[0-9a-fA-F]{3,8}\b']),
     (['-rnE', '--include=*.php', '--include=*.js', '--include=*.jsx', '--include=*.tsx'],

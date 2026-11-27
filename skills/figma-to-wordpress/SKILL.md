@@ -23,7 +23,8 @@ Paths are relative to this file's folder. Read a reference only when its step co
 | `references/nextjs.md` | The Next.js target: stack, tokens, images, fonts, metadata, deploy | Target Next.js |
 | `references/qa.md` | The check script, spec lines, pass marks, long content, the read-only check, the fix loop | First section; end of each phase |
 | `references/progress.md` | progress.json and the progress page | Start; when publishing |
-| `references/phase-steps.md` | The section loop and the QA steps, with their commands | Phase 2's start; every phase end |
+| `references/start.md` | Intake, inventory and plan in full | Start, once |
+| `references/phase-steps.md` | The section loop, the QA steps with their commands, what each phase must prove | Phase 2's start; every phase end |
 | `references/live.md` | The launch per target, the leads portal, live QA, the report | Go-live gate; the report |
 | `scripts/progress.py` | Now/Next, pages, sections, statuses, findings, log; renders the progress page | Every step |
 | `scripts/live.py` | The live progress page and its database rows (called by progress.py) | Never by hand |
@@ -128,32 +129,11 @@ apply as well (go quoted in notes.md, stop messages, no Zoho posts). Where they 
    database, on WordPress), and the files the checkpoint lists as touched (git status or their times). Don't
    re-read the whole plan or re-run QA; continue from its next step.
 2. **The task.** Read it in full and save it verbatim to `_figma/brief.md` (rule 2). Note its definition of done.
-3. **Intake, once.** One batch of questions (the question tool: > In other tools), defaults first, only what the task
-   and the profile don't answer: target (WordPress unless the task says Next.js), where to build (local folder and
-   address), the Figma file and which page or frames are final, live domain and host, form recipients, tracking (GTM, or
-   on WordPress the profile's tracking plugin when it names one), anything the task leaves open. A Figma link without a
-   node id: ask for the page or read the file's pages with `get_metadata`. The check needs, in the project: `npm i -D
-   playwright pixelmatch pngjs` (`references/qa.md`).
-4. **Inventory, once** (`references/figma.md`): pages and their desktop and mobile frames, breakpoints, tokens
-   (variables, or inferred from nodes), fonts, components, video, GIF, motion and prototype interactions, hidden and
-   off-canvas layers (drafts are never built), assets that need edits, design gaps. Write `_figma/inventory.md`
-   and `_figma/tokens.json`, then fill the progress file: `progress.py init` and one `progress.py page` per page with
-   its sections in order.
-5. **Plan** in `_figma/plan.md`, about 20 lines: target and stack, pages and templates, the field model in one table
-   (WordPress) or the routes and components (Next.js), forms and emails, plugins or packages, design gaps and how
-   each is built, decisions taken, blockers. Render and publish the progress page (`references/progress.md`).
-   **All rules at the plan:** every form and where its leads go (email, CFDB7 on WordPress, a leads portal only
-   when the profile names one), missing content (marked placeholders), the live plugin checklist (WordPress),
-   tracking, redirects, a chat or search.
-   They go in the plan and the plan OK covers them, so no rule arrives mid-build and reopens finished work. A skill
-   update during a task applies at the next phase boundary, never inside a QA run or a fix pass: finish it, then
-   update and log the new version.
-   **Recommended additions, raised at the plan** (the plan's list, and first in the plan-ready report): form
-   attribution, SEO, site speed, testing, tracking; for each, what the site lacks and what we recommend, one line
-   with its size ("nothing to add" is a valid line), as the table in convert-to-wordpress's
-   `assets/plan/PLAN.template.md`. Form attribution is built in by default; the rest are recommendations: the
-   developer decides, approved ones go into the plan, the others into the report. Anything else that changes the
-   work (a risk, a blocker, a better way) is said in one line as soon as it is known, never first at done.
+Steps 3 to 5 in full (what to ask, what the inventory and the plan hold): open `references/start.md` now, once.
+3. **Intake, once:** one batch of questions, defaults first, only what the task and the profile don't answer.
+4. **Inventory, once:** `_figma/inventory.md` and `_figma/tokens.json`, then every page in `progress.py`.
+5. **Plan** in `_figma/plan.md`: all rules at the plan and the Recommended additions (form attribution, SEO, site
+   speed, testing, tracking), first in the plan-ready report; then render and publish the progress page.
 6. **Gate: the plan.** Show the plan in 3 lines plus the progress link and wait for the developer's OK (in a
    Command Center project: the lead's go typed in this chat, quoted in notes.md). Nothing is built before it.
 
@@ -178,7 +158,7 @@ else waits for the Fix step, so each phase runs straight through.
 ### The section loop (phase 2)
 
 For every section, in page order: mark it `building`, one Figma call per node with its values saved to the spec,
-build from the spec, check your own work with `check.mjs` until it passes (rule 3), mark it `built`, and publish
+build from the spec, run `check.mjs` until it passes (rule 3), mark it `built`, and publish
 when a page's last section is built. Open `references/phase-steps.md` > The section loop (phase 2) at phase 2's
 start (the five steps with their commands) and keep to it for every section.
 
@@ -188,11 +168,14 @@ re-checked). A section with an open finding shows it on the page.
 ## QA (after each phase, and the loop at the end)
 
 Details: `references/qa.md`. Every phase ends the same way: `check.mjs` over its routes and the code gates (rule
-13), one fresh read-only check (a subagent), every finding added once (nothing fixed now, except a blocker), the
-page published, the phase's stop report (rule 11), and straight on: no go is needed between phases. After phase 4:
-one full QA run, then fix passes, each re-checking what it changed, until a re-check finds 0; then the go-live
-gate. Open `references/phase-steps.md` > QA (after each phase, and the loop at the end) at every phase end (the
-steps with their commands).
+13), one read-only check by a reader that never saw the build (a background subagent), every finding added once
+(nothing fixed now, except a blocker), the page published, the phase's stop report (rule 11), and straight on: no
+go is needed between phases. After phase 4: one full QA run, then fix passes, each re-checking what it changed,
+until a re-check finds 0; then the go-live gate. Open `references/phase-steps.md` > QA (after each phase, and the
+loop at the end) at every phase end (the steps with their commands).
+
+At the plan gate and every phase close, the stop report carries each item of `references/phase-steps.md` > What
+each phase must prove as `Pass|Fail | item | evidence`; the evidence is the tool's output, and none is Fail.
 
 ## Live and the report
 

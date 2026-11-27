@@ -111,9 +111,10 @@ broken layout (they have no Figma render).
 
 ## 6. The read-only check (every phase)
 
-A fresh read-only check that changes nothing: a subagent (Claude Code: on a cheaper model such as Sonnet; Codex
-`spawn_agent`; Antigravity `invoke_subagent`, not a new conversation); without subagents, a new chat told to only
-read. Its brief (fill the brackets):
+A read-only check that changes nothing, by a reader that never saw the build: a subagent run in the background
+(Claude Code: on a cheaper model such as Sonnet; Codex `spawn_agent`; Antigravity `invoke_subagent`, not a new
+conversation); without subagents, a new chat with the same brief. The chat that built it never stands in. Its brief
+(fill the brackets):
 
 > Read-only QA of [site] after phase [n]. Change nothing. Read `_figma/progress.json`, the phase checklist below
 > and the check's latest JSON in `_figma/qa/`. Start from the numbers: every failing line there is a finding. Open
@@ -136,21 +137,10 @@ SKILL.md rule 13 in commands. Run in the theme (WordPress) or the app (Next.js);
   with a reason on the same line.
 - **Prettier and ESLint:** `npx prettier --check .` and `npx eslint .` (Next.js: `npm run lint`), with the
   project's configs; build output, vendor and node_modules ignored.
-- **Self-check** over the theme's or app's source; each hit is fixed or kept with a one-line reason in the report.
-  In any shell (PowerShell included): `python3 <kit>/scripts/oneoff.py <theme or app>` (the same searches as the
-  grep lines below; a WordPress theme can use convert-to-wordpress's `scripts/report/text-check.py oneoff <theme>`).
-  With grep or rg:
-
-```
-X="--exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=dist --exclude-dir=build --exclude-dir=.next"
-grep -rnE $X --include='*.php' --include='*.js' --include='*.jsx' --include='*.tsx' -e '[a-z]-\[(#|[0-9])' .
-grep -rnE $X --include='*.css' -e '#[0-9a-fA-F]{3,8}\b' . | grep -v tokens
-grep -rnE $X --include='*.php' --include='*.js' --include='*.jsx' --include='*.tsx' -e '[0-9]+:[0-9]+|\b[A-Z][A-Z0-9]+-T[0-9]+\b' .
-grep -rn $X --include='*.php' -e 'phpcs:ignore' -e 'phpcs:disable' .
-```
-
-  In order: one-off values, hex outside the tokens file, Figma node IDs and ticket tags, ignore comments. The
-  node-ID pattern also matches times and ratios: read the hits, fix only node IDs.
+- **Self-check** over the theme's or app's source, in any shell: `python3 <kit>/scripts/oneoff.py <theme or app>`
+  (what it searches and how to read its hits: the script's own header; a WordPress theme can use
+  convert-to-wordpress's `scripts/report/text-check.py oneoff <theme>`). Each hit is fixed or kept with a one-line
+  reason in the report.
 - **Size and shape:** no section template or component over about 250 lines or 15 fields or props (split it); one
   job per file (form logic, markup and JS apart); no inline `<script>` (WordPress: enqueued; Next.js: imported);
   no kit file, helper, config or seed file the site doesn't use.

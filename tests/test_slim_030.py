@@ -26,6 +26,16 @@ CHANGED = {
     'every live password, licence key and API key.': '0.3.2: the same sentence, rewrapped',
     'route built from typed content (Next.js); forms, emails, form attribution and the leads portal proven on live; the':
         '0.3.2: the leads portal is optional',
+    '4. **Check your own work:** `node <kit>/scripts/check.mjs --base <url> --route <path> --page <page> --section':
+        '0.4.0: the self-check framing removed, the check kept (STEPS_040)',
+    '2. One fresh read-only check (a subagent; in Claude Code on a cheaper model such as Sonnet; other tools: > '
+    'In other':
+        '0.4.0: a reader that never saw the build (STEPS_040)',
+    "tools; without subagents, a new chat told to only read): the check's numbers first, images only for its failures,":
+        '0.4.0: the same item, rewrapped',
+    "4. Publish the progress page (the run's findings with their status), report the phase's stop (rule 11) and go":
+        "0.4.0: the stop report carries the phase's Pass|Fail lines (STEPS_040)",
+    'straight on to the next phase. No go is needed between phases.': '0.4.0: the same item, rewrapped',
 }
 # The phase table as 0.3.2 words it (the only change since 0.2.15).
 PHASES_032 = [
@@ -34,6 +44,23 @@ PHASES_032 = [
     ('form attribution and the leads portal sender (`references/nextjs.md`)',
      'form attribution, and the leads portal sender only when the profile names one (`references/nextjs.md`)'),
 ]
+
+# The moved steps as 0.4.0 words them (the token diet: no self-check framing, a reader that never saw the build,
+# the phase's Pass|Fail lines in the stop report). Compared with whitespace collapsed.
+STEPS_040 = [
+    ('4. **Check your own work:** `node', '4. **Check:** `node'),
+    ('2. One fresh read-only check (a subagent; in Claude Code on a cheaper model such as Sonnet; other tools: > In '
+     'other tools; without subagents, a new chat told to only read):',
+     '2. One read-only check by a reader that never saw the build (a subagent run in the background; in Claude Code '
+     'on a cheaper model such as Sonnet; other tools: > In other tools; without subagents, a new chat with the same '
+     'brief; the chat that built it never stands in):'),
+    ("report the phase's stop (rule 11) and go", "report the phase's stop (rule 11) with the phase's `Pass|Fail` "
+     'lines (> What each phase must prove) and go'),
+]
+
+
+def flat(text):
+    return ' '.join(text.split())
 
 
 def read(*parts):
@@ -90,18 +117,22 @@ class Slim(unittest.TestCase):
         old = old_skill()
         if old is None:
             self.skipTest('no git or no 0.2.15 tag here')
-        self.assertEqual(section(self.steps, 'The section loop (phase 2)').strip(),
-                         section(old, 'The section loop (phase 2)', '###').strip())
-        self.assertEqual(section(self.steps, 'QA (after each phase, and the loop at the end)').strip(),
-                         section(old, 'QA (after each phase, and the loop at the end)').strip())
+        for heading, level in (('The section loop (phase 2)', '###'),
+                               ('QA (after each phase, and the loop at the end)', '##')):
+            want = flat(section(old, heading, level))
+            for x, y in STEPS_040:
+                want = want.replace(x, y)
+            self.assertEqual(flat(section(self.steps, heading)), want, heading)
 
     def test_pointers_resolve(self):
         heads = re.findall(r'(?m)^## (.+)$', self.steps)
         listed = re.findall(r'(?m)^- (.+)$', section(self.steps, 'Contents'))
         self.assertEqual(listed, [h for h in heads if h != 'Contents'])
-        for target in re.findall(r'`references/phase-steps\.md` > (.+?\))', self.skill):
-            self.assertIn(target, heads, f'pointer to a missing section: {target}')
-        self.assertEqual(len(re.findall(r'`references/phase-steps\.md` > ', self.skill)), 2)
+        parts = flat(self.skill).split('`references/phase-steps.md` > ')[1:]
+        targets = [p.split('`references/')[0] for p in parts]
+        self.assertEqual(len(targets), 3)  # section loop, QA, what each phase must prove (0.4.0)
+        for t in targets:
+            self.assertTrue(any(t.startswith(h) for h in heads), f'pointer to a missing section: {t[:60]}')
         self.assertIn('| `references/phase-steps.md` |', self.skill)
 
 

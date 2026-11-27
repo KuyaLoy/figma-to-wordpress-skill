@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""The self-check searches of references/qa.md section 7 in Python, so they run in any shell (PowerShell, cmd, Git
-Bash, a Mac or Linux terminal): one-off values, raw hex outside the tokens file, Figma node IDs and ticket tags,
-and PHPCS ignore comments. The same patterns, files and skipped folders as the grep lines there.
+"""The self-check of references/qa.md section 7 (it points here), in Python, so it runs in any shell (PowerShell,
+cmd, Git Bash, a Mac or Linux terminal). Four searches: one-off values (`text-[19px]`, `bg-[#...]`) in .php, .js,
+.jsx and .tsx; raw hex in .css outside the tokens file; Figma node IDs and ticket tags in code; PHPCS ignore
+comments in .php. Skips node_modules, vendor, dist, build, .next and .git. The same patterns as the four grep lines
+qa.md had before 0.4.0 (tests/test_oneoff.py still runs them against this script).
 
     python3 oneoff.py [dir]     the theme (WordPress) or the app (Next.js); default: the current folder
 

@@ -5,6 +5,42 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-27
+
+Fewer tokens per build, with every rule, phase, test and QA step kept, as in convert-to-wordpress 0.11.0. Rules 1
+to 13, the phase table and "Done means" are word for word as before.
+
+### Added
+
+- **What each phase must prove** (`references/phase-steps.md`): the plan, each phase, the fix loop and live as
+  objective items, each naming the tool that gives its evidence (`progress.py status`, `check.mjs` rows, curl -I,
+  the mail capture, the dataLayer, PageSpeed Insights). At the plan gate and every phase close the stop report
+  carries each item as `Pass|Fail | item | evidence`; an item without evidence is Fail. On WordPress, items that
+  convert-to-wordpress already proves point to its SKILL.md > What each phase must prove (0.11.0 or later),
+  never copied.
+- `references/start.md`: Start steps 3 to 5 (intake, inventory, plan) in full, moved word for word from SKILL.md,
+  which keeps a one-line summary of each and the pointer. Read once, at the start.
+- `tests/test_token_diet_040.py`: no self-check lines, the Pass|Fail items with their evidence, the fresh reader,
+  the self-check named not restated, the start steps moved word for word, and nothing lost since 0.3.2 (every line
+  and heading of SKILL.md and the references, rules, the phase table and "Done means" word for word).
+
+### Changed
+
+- **The read-only QA check** is a reader that never saw the build: a subagent run in the background, else a new
+  chat with the same brief; the chat that built it never stands in (SKILL.md > QA, `references/qa.md` section 6,
+  `references/phase-steps.md` > QA).
+- **The self-check is named, not restated:** `references/qa.md` section 7's four grep lines become one line
+  pointing to `scripts/oneoff.py`, whose header now lists its searches; `tests/test_oneoff.py` still runs the four
+  grep lines against it.
+- SKILL.md 19,962 -> 18,209 bytes (room under the 20,000 limit); `tests/test_slim_030.py` lists the lines changed
+  on purpose.
+
+### Removed
+
+- The "check your own work" framing (it makes the agent over-check, at more tokens and no better result): SKILL.md
+  > The section loop and `references/phase-steps.md` step 4 now just run `check.mjs` until it passes. The real
+  checks stay: `check.mjs`, the code gates, QA and the tests.
+
 ## [0.3.2] - 2026-11-27
 
 ### Changed
