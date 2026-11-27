@@ -60,8 +60,8 @@ page with the type scale and colours, deleted after), `_figma/` answers 403.
   Markup from the spec; fields from the start; seeded with the Figma copy verbatim, so the page shows the design
   right after seeding. Anything used on two pages (phone, address, CTA, footer, social links) lives in Theme
   Settings: one group with tabs across the top (the kit's field builder default, placement "top"; "left" only when
-  the developer asks), plus the kit's Leads portal group, which the builder always writes (keep it when the example
-  spec is replaced): the kit's `references/build.md` > Theme Settings (0.9.12 or later).
+  the developer asks), plus the kit's Leads portal group when the profile names a portal (the builder writes it
+  then; keep it when the example spec is replaced): the kit's `references/build.md` > Theme Settings (0.9.12 or later).
 - Field names editors understand (labels in plain words, instructions where needed, defaults from Figma).
 - Images go into the Media Library and into their fields (never hard-coded); the theme prints them with
   `wp_get_attachment_image()` and correct `sizes`, the LCP image with `fetchpriority="high"` and no lazy loading.
@@ -76,8 +76,9 @@ the form as the design shows it, branded HTML emails for the notification and th
 thank-you redirect). The form's look comes from the Figma spec: fields, labels, errors and success states (states
 Figma lacks are built from the design system and listed).
 
-The leads portal: the kit's rule as it is (its `references/forms-email.md` > The leads portal, 0.9.12 or later):
-its sender posts each lead form whether the email went out or failed, the code is in from this phase, and it is off
+The leads portal, only when the profile names one (none by default: then leads go by email and CFDB7 and there is
+no portal step): the kit's rule as it is (its `references/forms-email.md` > The leads portal, 0.10.2 or later): its
+sender posts each lead form whether the email went out or failed, the code is in from this phase, and it is off
 locally and on staging. The address and password always live in Theme Settings > Leads portal (administrators only,
 seeded empty, pasted on live; wp-config constants win when defined). Never copied here.
 
@@ -128,10 +129,10 @@ After the move: **the live plugin checklist**, the one list, in the kit's `asset
 section 4 (and `references/launch.md` > After the installer, 0.9.11 or later); never copied here. In short: the
 profile's live plugins from the developer's plugin folder (`"where": "live"` ones installed here first; each zip's
 version checked before go-live), Contact Form CFDB7, Converter for Media, Redirection when the site has any
-redirect, the reCAPTCHA v3 keys on every form, the cache plugin (LiteSpeed Cache unless the profile names another)
-and the leads portal on every lead form (the project in the portal admin, the address and password pasted into
-Theme Settings > Leads portal on live, the kit's `scripts/report/leads-check.py --site` check, then one TEST lead
-per form in the portal).
+redirect, the reCAPTCHA v3 keys on every form, the cache plugin (LiteSpeed Cache unless the profile names another) and,
+only when the profile names a portal, the leads portal on every lead form (the project in the portal admin, the address
+and password pasted into Theme Settings > Leads portal on live, the kit's `scripts/report/leads-check.py --site` check,
+then one TEST lead per form in the portal).
 Live has exactly the kit's list and nothing else unless the task asks (site.json `"task_plugins"`). Staging gets
 ACF PRO, Contact Form 7 and Yoast SEO (Redirection if needed), none of the live list, and stays noindex. Then search
 engines allowed, debug off, live QA, where the kit's `scripts/report/plugin-check.py <wp_root>/_plan/site.json --env

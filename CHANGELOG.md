@@ -5,6 +5,17 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-11-27
+
+### Changed
+
+- **The leads portal is optional, none by default,** as in convert-to-wordpress 0.10.2 (its
+  `references/forms-email.md` > The leads portal; nothing copied): built, set up and checked only when the profile
+  names one. Without one, leads go by email (with the Lead source table) and, on WordPress, Contact Form CFDB7 on
+  live, with no blocker and no portal step. SKILL.md (plan, phase 3, Live, Done means), `references/live.md`,
+  `references/wordpress.md`, `references/nextjs.md` and `references/qa.md` say so.
+- `tests/test_slim_030.py` lists the SKILL.md lines 0.3.2 changed on purpose.
+
 ## [0.3.1] - 2026-11-25
 
 ### Changed

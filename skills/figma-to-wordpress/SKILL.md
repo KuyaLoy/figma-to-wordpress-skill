@@ -142,8 +142,9 @@ apply as well (go quoted in notes.md, stop messages, no Zoho posts). Where they 
 5. **Plan** in `_figma/plan.md`, about 20 lines: target and stack, pages and templates, the field model in one table
    (WordPress) or the routes and components (Next.js), forms and emails, plugins or packages, design gaps and how
    each is built, decisions taken, blockers. Render and publish the progress page (`references/progress.md`).
-   **All rules at the plan:** every form and where its leads go (the leads portal, or "none: <reason>"), missing
-   content (marked placeholders), the live plugin checklist (WordPress), tracking, redirects, a chat or search.
+   **All rules at the plan:** every form and where its leads go (email, CFDB7 on WordPress, a leads portal only
+   when the profile names one), missing content (marked placeholders), the live plugin checklist (WordPress),
+   tracking, redirects, a chat or search.
    They go in the plan and the plan OK covers them, so no rule arrives mid-build and reopens finished work. A skill
    update during a task applies at the next phase boundary, never inside a QA run or a fix pass: finish it, then
    update and log the new version.
@@ -164,7 +165,7 @@ One phase at a time, in this order. Each phase ends with QA that only collects f
 |---|---|---|
 | 1 Setup | Local WordPress in one go, the plugins and the theme (`references/wordpress.md`); tokens, fonts and base styles from `tokens.json` | The app, Tailwind tokens from `tokens.json`, fonts with `next/font` (`references/nextjs.md`) |
 | 2 Pages | Section by section (below): global parts first (header, footer, menus, mobile menu), then the template most pages share, then the other pages; every page editable in ACF; last, the long content test pages | The same order, as components and routes; content in one typed content file per page unless the task names a CMS; last, the long content route |
-| 3 Forms and email | Contact Form 7 forms with the branded emails, spam protection, thank-you page; form attribution and the leads portal sender (`references/wordpress.md`) | Server actions or a route handler with validation, spam protection, the task's mail service, form attribution and the leads portal sender (`references/nextjs.md`) |
+| 3 Forms and email | Contact Form 7 forms with the branded emails, spam protection, thank-you page; form attribution, and the leads portal sender only when the profile names one (`references/wordpress.md`) | Server actions or a route handler with validation, spam protection, the task's mail service, form attribution, and the leads portal sender only when the profile names one (`references/nextjs.md`) |
 | 4 SEO, security, speed | Yoast, schema, redirects, hardening, speed checks | Metadata API, sitemap, robots, JSON-LD, headers, speed checks |
 | Fix | One full QA run over every route (its findings join the list), then every open finding fixed, blockers and majors first | Same |
 | QA until 0 | Each fix pass re-checked, scoped to what changed (`references/qa.md` section 10), until a re-check finds 0 | Same |
@@ -197,8 +198,8 @@ steps with their commands).
 
 After the go-live gate, read `references/live.md`: the launch per target (WordPress through convert-to-wordpress's
 launch steps and its plugin list per environment, proven by its `plugin-check.py`; Next.js where the task says),
-the leads portal on every lead form, live QA, and the report (`_figma/report.md`, DONE first). The developer types
-every live password, licence key and API key.
+the leads portal only when the profile names one, live QA, and the report (`_figma/report.md`, DONE first).
+The developer types every live password, licence key and API key.
 
 ## Project files (private)
 
@@ -212,7 +213,8 @@ the developer's handoff rules.
 
 Every page and section `checked` or `fixed` on the progress page; QA's last full run found 0; the code gates pass
 (rule 13: PHPCS, Prettier, ESLint, the self-check, the code review); every page editable (WordPress) or every
-route built from typed content (Next.js); forms, emails, form attribution and the leads portal proven on live; the
+route built from typed content (Next.js); forms, emails and form attribution proven on live (and the leads portal
+when the profile names one); the
 Recommended additions raised at the plan and decided; SEO, tracking and the
 conversion proven on live; the live plugin checklist done and `plugin-check.py --env live` OK on a live WordPress,
 then Duplicator deleted (`--done`); nothing private reachable; the

@@ -41,8 +41,8 @@ WordPress; only the stack differs.
 - Mail through the task's service (Resend, SMTP, the client's provider). HTML email built from the design's colours
   and logo; a plain-text part too. Redirect to `/thank-you` (noindex) where the conversion fires.
 - Without JavaScript the form still posts (progressive enhancement with a Server Action).
-- Leads go only to the email and the leads portal (below), never to a database, file or admin page of the build's
-  own.
+- Leads go only to the email and, when the profile names one, the leads portal (below), never to a database, file
+  or admin page of the build's own.
 - **Where the lead came from (form attribution),** on every lead form by default, no package; the same names, caps,
   Lead source table and event as convert-to-wordpress 0.9.10 (its `references/forms-email.md` > Where the lead came
   from):
@@ -86,9 +86,10 @@ WordPress; only the stack differs.
     sessionStorage `kitwp_lead`; `/thank-you` pushes one `generate_lead` to the dataLayer with `form_name`,
     `lead_source` and `lead_medium` when that entry is under 30 minutes old, then removes it, so a refresh or a
     direct visit pushes nothing.
-- **The leads portal** (mandatory on live for every lead form; a site without one says so in the plan): a
-  server-only `sendLead()` in `src/lib/leads.ts` (`import 'server-only'`), called from each form's action
-  **whether the mail service succeeded or failed**, once per submission:
+- **The leads portal** (only when the profile names one, as convert-to-wordpress's `references/forms-email.md` > The
+  leads portal, 0.10.2 or later; without one, leads go by email only and none of this is built): a server-only
+  `sendLead()` in `src/lib/leads.ts` (`import 'server-only'`), called from each form's action **whether the mail service
+  succeeded or failed**, once per submission:
   - `POST` JSON to `process.env.LEADS_ENDPOINT` with `Authorization: Bearer ${process.env.LEADS_WRITE_KEY}`:
     `form` (the form's name), a unique `idempotency_key` (`crypto.randomUUID()`), the posted fields, `source_url`,
     `ip_address` (from `x-forwarded-for`), the cleaned attribution fields under the same names (`gclid` from the
@@ -116,10 +117,11 @@ WordPress; only the stack differs.
 ## Live
 
 Deploy where the task says (Vercel by default: the developer connects the repo and sets the environment variables).
-Domain and redirects as the task says. The leads portal: the project in the portal admin (domain = the live domain),
+Domain and redirects as the task says. The leads portal, when the profile names one: the project in the portal
+admin (domain = the live domain),
 `LEADS_ENDPOINT` and `LEADS_WRITE_KEY` set for Production only, then the GET check, which stores nothing (the
 convert-to-wordpress kit's `scripts/report/leads-check.py` works for any site; the developer runs it with the key
 from the environment or its hidden prompt), then one TEST lead per form after the developer agrees (one from a page
-opened with `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST`: the email row and the portal show
+opened with `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST`: the email row (and the portal, if any) show
 them in the Lead source table; a lead from a plain visit shows "Direct (typed in, bookmark or no source)").
 Live QA as in SKILL.md.

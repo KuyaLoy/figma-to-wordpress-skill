@@ -11,6 +11,30 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 SKILL_DIR = os.path.join(ROOT, 'skills', 'figma-to-wordpress')
 OLD_TAG = 'figma-to-wordpress--v0.2.15'
 
+# 0.2.15 SKILL.md lines changed on purpose later (the old line, and the release that changed it).
+CHANGED = {
+    '**All rules at the plan:** every form and where its leads go (the leads portal, or "none: <reason>"), missing':
+        '0.3.2: the leads portal is optional',
+    'content (marked placeholders), the live plugin checklist (WordPress), tracking, redirects, a chat or search.':
+        '0.3.2: the same item, rewrapped',
+    "| 3 Forms and email | Contact Form 7 forms with the branded emails, spam protection, thank-you page; form "
+    "attribution and the leads portal sender (`references/wordpress.md`) | Server actions or a route handler with "
+    "validation, spam protection, the task's mail service, form attribution and the leads portal sender "
+    "(`references/nextjs.md`) |": '0.3.2: the leads portal sender only when the profile names one',
+    'the leads portal on every lead form, live QA, and the report (`_figma/report.md`, DONE first). The developer types':
+        '0.3.2: the leads portal is optional',
+    'every live password, licence key and API key.': '0.3.2: the same sentence, rewrapped',
+    'route built from typed content (Next.js); forms, emails, form attribution and the leads portal proven on live; the':
+        '0.3.2: the leads portal is optional',
+}
+# The phase table as 0.3.2 words it (the only change since 0.2.15).
+PHASES_032 = [
+    ('form attribution and the leads portal sender (`references/wordpress.md`)',
+     'form attribution, and the leads portal sender only when the profile names one (`references/wordpress.md`)'),
+    ('form attribution and the leads portal sender (`references/nextjs.md`)',
+     'form attribution, and the leads portal sender only when the profile names one (`references/nextjs.md`)'),
+]
+
 
 def read(*parts):
     with open(os.path.join(SKILL_DIR, *parts), encoding='utf-8') as fh:
@@ -46,7 +70,7 @@ class Slim(unittest.TestCase):
         old = old_skill()
         for line in old.splitlines():
             t = line.strip()
-            if t:
+            if t and t not in CHANGED:
                 self.assertIn(t, have, f'lost from 0.2.15 SKILL.md: {t}')
         for h in re.findall(r'(?m)^#{1,3} .+$', old):
             self.assertIn(h, self.skill, f'heading lost from SKILL.md: {h}')
@@ -57,7 +81,10 @@ class Slim(unittest.TestCase):
         old = old_skill()
         if old:
             self.assertEqual(rules, section(old, 'Rules (always)'))  # the hard rules word for word
-            self.assertEqual(section(self.skill, 'The phases'), section(old, 'The phases'))
+            phases = section(old, 'The phases')
+            for a, b in PHASES_032:
+                phases = phases.replace(a, b)
+            self.assertEqual(section(self.skill, 'The phases'), phases)
 
     def test_moved_steps_word_for_word(self):
         old = old_skill()
