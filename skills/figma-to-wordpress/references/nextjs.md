@@ -23,6 +23,12 @@ WordPress; only the stack differs.
 
 - App Router: one folder per route under `src/app/`, the URLs from the task or the menu in Figma. Global parts in
   `src/components/site/` (header, footer, mobile menu), sections in `src/components/sections/`.
+- **Agency badge, on every site** (the same rule as convert-to-wordpress's `references/build.md` > Agency badge,
+  0.12.0 or later), even when Figma has none: in the footer's bottom bar next to the copyright; a footer without
+  one gets one in the footer's own style. Dynamic, never hard-coded in the component: `agencyBadge` (image, link,
+  alt) in `src/content/site.ts`, filled from the developer's profile `branding`; its `hide` works only with the
+  task's note that the client asked. SVG is fine on the web. Where Figma lacks it, a known diff in the footer's
+  pixel check (`references/qa.md` section 3).
 - Server Components by default; `'use client'` only for the interactive part (menu toggle, slider, accordion), kept
   as small as possible.
 - Content: one typed file per page in `src/content/` (the Figma copy verbatim), unless the task names a CMS; then
@@ -39,49 +45,52 @@ WordPress; only the stack differs.
   protection the task names (reCAPTCHA v3 or Cloudflare Turnstile). The keys go in environment variables the
   developer sets; `.env.local` is never committed, `.env.example` lists the names only.
 - Mail through the task's service (Resend, SMTP, the client's provider). HTML email built from the design's colours
-  and logo; a plain-text part too. Redirect to `/thank-you` (noindex) where the conversion fires.
+  and logo; a plain-text part too. The lead email and the visitor's auto-reply share one branded template (logo
+  header, brand-colour footer strip) and both end with the agency badge, linked, from the same `agencyBadge` as the
+  footer (a PNG at 2x: email clients show no SVG or WebP).
+  Redirect to `/thank-you` (noindex) where the conversion fires.
 - Without JavaScript the form still posts (progressive enhancement with a Server Action).
 - Leads go only to the email and, when the profile names one, the leads portal (below), never to a database, file
   or admin page of the build's own.
-- **Where the lead came from (form attribution),** on every lead form by default, no package; the same names, caps,
-  Lead source table and event as convert-to-wordpress 0.9.10 (its `references/forms-email.md` > Where the lead came
-  from):
+- **Where the lead came from (form attribution): the company standard,** on every lead form by default, no
+  package: the eleven fields with the same labels, posted names, order and values as convert-to-wordpress 0.12.0
+  (its `references/forms-email.md` > Where the lead came from: the table, "none" for an empty value, the extra
+  rows, the source in words), read there. The labels, in this order: Lead Source, Google Ads Campaign ID, Google
+  Click ID, Landing Page, Referrer, Lead Source Date, Form Submitted From, First Touch Source, First Visit Date,
+  First Touch Landing Page, First Touch Referrer. In Next.js:
   - **Browser, first party only** (`src/lib/attribution.ts`, a small client module loaded once in the root layout):
     two visits. The **first visit** in localStorage `kitwp_attr_first`, kept 90 days; the **latest campaign visit**
     (the last one that came with campaign tags, an ad click id or from another website) in `kitwp_attr_last`, kept
-    the same way. Each: the campaign tags (utm_source, utm_medium, utm_campaign, utm_term, utm_content), the ad
-    click ids (gclid, gbraid, wbraid, fbclid, msclkid), its first page, the site that sent it, its time
-    ("YYYY-MM-DD HH:MM" UTC). Addresses keep host and path, never the query. Nothing leaves the browser until the
-    visitor sends a form; nothing goes to a third party. Storage blocked: the form still gets this page's values.
+    the same way. Each: the campaign tags (utm_source, utm_medium, utm_campaign, utm_term, utm_content, utm_id), the
+    ad click ids (gclid, gbraid, wbraid, fbclid, msclkid), `gad_campaignid`, its first page with its query (without
+    any parameter whose value holds an "@"), the site that sent it (host and path), its time ("YYYY-MM-DD HH:MM"
+    UTC). Nothing leaves the browser until the visitor sends a form; nothing goes to a third party. Storage
+    blocked: the form still gets this page's values.
   - **Consent as the kit's "auto":** Google Consent Mode in the dataLayer. A page that sets a consent default has
     a banner: the visits go to localStorage only once `ad_storage` or `analytics_storage` is granted; until then,
     and after an update with neither granted, only this visit is kept (sessionStorage), and a decline removes the
     stored visits. No consent default on the page: no banner, stored as above. Either way the form gets this
     visit's values.
   - **Hidden fields on every lead form,** filled at load, on first focus and at submit. The latest campaign visit:
-    `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `gclid`, `gbraid`, `wbraid`, `fbclid`,
-    `msclkid`, `landing_page`, `referrer`, `last_seen`. The first visit: `first_source`, `first_medium`,
-    `first_campaign`, `first_term`, `first_content`, `first_gclid`, `first_gbraid`, `first_wbraid`,
-    `first_fbclid`, `first_msclkid`, `first_landing_page`, `first_referrer`, `first_seen`.
+    `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `utm_id`, `gclid`, `gbraid`, `wbraid`,
+    `fbclid`, `msclkid`, `gad_campaignid`, `landing_page`, `referrer`, `last_seen`. The first visit:
+    `first_source`, `first_medium`, `first_campaign`, `first_term`, `first_content`, `first_id`, `first_gclid`,
+    `first_gbraid`, `first_wbraid`, `first_fbclid`, `first_msclkid`, `first_gad_campaignid`, `first_landing_page`,
+    `first_referrer`, `first_seen`.
   - **Checked on the server** (`src/lib/attribution-server.ts`, `import 'server-only'`, called by every form's
-    action): only those names, strings, cleaned, capped (500 for `landing_page`, `referrer`, `first_landing_page`,
-    `first_referrer`; 16 for `first_seen` and `last_seen`; 200 for the rest), http(s) addresses with host and path
-    only; anything else dropped. Without JavaScript the form page's own address (the `Referer` header) gives its
+    action): only those names, strings, cleaned, capped (1000 for the landing pages, 500 for the referrers, 16 for
+    the times, 200 for the rest), http(s) addresses only; anything else dropped. Then the server works out the
+    eleven (a posted standard name is always replaced); the two dates in the site's time zone (`timeZone` in
+    `src/content/site.ts`). Without JavaScript the form page's own address (the `Referer` header) gives its
     campaign tags and click ids. Reporting only: never used to decide anything about a lead.
-  - **The lead email's Lead source table,** under the lead details, in the HTML and the plain-text part (the same
-    rows as lines), every value escaped:
-    - Title row "Lead source", bold, on the design's brand colour (from the tokens) with black (#1a1a1a) or white
-      text, whichever has the higher contrast; no brand colour: #28292D with white. Label cells grey (#fafafa), a 38%
-      label column, 1px #dddddd borders, Arial 13px.
-    - Rows: "First visit"; "Latest campaign visit" only when it differs from the first (time ignored); "Form sent
-      from" (the page the form was sent from, from the server's own record, so it shows without JavaScript too).
-      No page-script data: "Not recorded (the visitor's browser did not run the page script)." plus "Form sent
-      from".
-    - Each visit starts with its source in words, bold: utm_source / utm_medium; else "Google Ads click" (gclid,
-      gbraid, wbraid), "Facebook / Instagram click" (fbclid), "Microsoft Ads click" (msclkid); else from the
-      referrer "Google search", "Bing search", "Yahoo search", "DuckDuckGo search" or "<site> (link)"; else "Direct
-      (typed in, bookmark or no source)". Then the lines that have a value: Campaign, Keyword, Ad, gclid, gbraid,
-      wbraid, fbclid, msclkid, From, Landing page, "When: YYYY-MM-DD HH:MM UTC".
+  - **The lead email's Lead Attribution table,** under the lead details, in the HTML and the plain-text part
+    ("Label: value" lines), every value escaped: a title row "Lead Attribution", bold, on the design's brand colour
+    (from the tokens) with black (#1a1a1a) or white text, whichever has the higher contrast (no brand colour:
+    #28292D with white); the eleven rows in order, then the extra rows; label cells grey (#fafafa), a 38% label
+    column, 1px #dddddd borders, Arial 13px. "Form Submitted From" comes from the server's own record, so it shows
+    without JavaScript too.
+  - **No CRM or app connection for Next.js builds yet:** the eleven go to the lead email (and, under their posted
+    names, to the leads portal when the profile names one); the developer says when and how a connection comes.
   - **The conversion:** at submit the form's client part stores the form's name, source, medium and the time in
     sessionStorage `kitwp_lead`; `/thank-you` pushes one `generate_lead` to the dataLayer with `form_name`,
     `lead_source` and `lead_medium` when that entry is under 30 minutes old, then removes it, so a refresh or a
@@ -122,6 +131,7 @@ admin (domain = the live domain),
 `LEADS_ENDPOINT` and `LEADS_WRITE_KEY` set for Production only, then the GET check, which stores nothing (the
 convert-to-wordpress kit's `scripts/report/leads-check.py` works for any site; the developer runs it with the key
 from the environment or its hidden prompt), then one TEST lead per form after the developer agrees (one from a page
-opened with `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST`: the email row (and the portal, if any) show
-them in the Lead source table; a lead from a plain visit shows "Direct (typed in, bookmark or no source)").
+opened with `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST&gad_campaignid=123`: the email's Lead
+Attribution table (and the portal, if any) shows the eleven rows with those values; a lead from a plain visit shows
+Lead Source "Direct" and "none" rows; both emails end with the agency badge, linked).
 Live QA as in SKILL.md.

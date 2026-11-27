@@ -67,6 +67,10 @@ page with the type scale and colours, deleted after), `_figma/` answers 403.
   `wp_get_attachment_image()` and correct `sizes`, the LCP image with `fetchpriority="high"` and no lazy loading.
 - Global parts: header, footer, menus (WordPress menus), mobile menu (a gap in most files: built from the design
   system), pop-ups and banners as in Figma.
+- The agency badge in the footer's bottom bar on every site, even when Figma has none: the kit's rule as it is (its
+  `references/build.md` > Agency badge, 0.12.0 or later: dynamic from Theme Settings > Branding with its link,
+  hidden only with the client's recorded request). Never copied here. Where Figma lacks it, it is a known diff in
+  the footer's pixel check (`references/qa.md` section 3): noted in the footer's spec, judged by its element lines.
 - Thank-you and 404 always exist, from the design's parts when Figma lacks them.
 
 ## Phase 3: forms and email
@@ -86,13 +90,21 @@ Where leads are stored: the kit's rule 17 (Leads: CFDB7 only) and its `reference
 stored: CFDB7 only (0.10.1 or later), as they are. Its pre-QA self-check reports any storage of the build's own as a
 `lead-storage` finding (file:line). Never copied here.
 
-Form attribution: the kit's rule as it is (its `references/forms-email.md` > Where the lead came from, 0.9.10 or
-later): built into the kit's theme on every Contact Form 7 form, nothing to set up: the first visit and the latest
-campaign visit in hidden fields, and the lead email's Lead source table (its title row in `KITWP_BRAND_COLOUR`, set
-from the design's brand colour). The hidden fields don't change the Figma look. Its consent setting
+Form attribution: the company standard, the kit's rule as it is (its `references/forms-email.md` > Where the lead
+came from, 0.12.0 or later): built into the kit's theme on every Contact Form 7 form, nothing to set up: the first
+visit and the latest campaign visit in hidden fields, and the eleven labelled fields in order in the lead email's
+Lead Attribution table (its title row in `KITWP_BRAND_COLOUR`, set from the design's brand colour) and the CFDB7
+columns; on live every lead form is mapped in the app the profile's connector plugin feeds (its > The CRM or app).
+The hidden fields don't change the Figma look. Its consent setting
 (`KITWP_ATTRIBUTION_CONSENT`) follows the site's consent banner, decided at the plan. A WordPress site the kit did
 not build gets the same as a must-use plugin (the kit's `scripts/launch/lead-source-plugin.py`). The plan's
 Recommended additions use the kit's `assets/plan/PLAN.template.md` table.
+
+Form layout: the kit's `references/forms-email.md` > Form layout (0.12.0 or later): a form Figma has is built 1:1
+from the spec; a lead form where Figma has none uses the kit default (`form_class` `kitwp-form`), proven with its
+`form-layout.mjs`. Both emails: its > The auto-reply and the agency badge (0.12.0 or later): every form's lead email
+and auto-reply in the branded HTML template, each ending with the agency badge, linked; its self-check (class
+`branding`) and `live-qa.py` (check 11) fail without them. Never copied here.
 
 ## QA: prevent, then converge
 

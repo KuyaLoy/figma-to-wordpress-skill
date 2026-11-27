@@ -21,8 +21,10 @@ of the report uses > The report.
 - **Live QA:** `check.mjs` on the live address over every route; forms with one real test lead each, named
   `TEST <developer> - please ignore`, after the developer agrees, each reaching the email (and the leads portal
   when there is one: its admin shows the count per form); one of them sent from a page opened with
-  `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST` shows them in the email's Lead source table
-  (and in the portal, if any); tracking and the conversion (`generate_lead`) fire; nothing from
+  `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST&gad_campaignid=123` shows the eleven rows in the
+  email's Lead Attribution table (and in the portal, if any; WordPress: in CFDB7 and the app the profile's connector
+  plugin feeds); both emails and the footer show the agency badge, linked (WordPress: the kit's `live-qa.py` check
+  11); tracking and the conversion (`generate_lead`) fire; nothing from
   local left (search engines allowed, debug off, no `_figma/` or private files reachable, the long content test
   pages removed: `references/qa.md`).
 

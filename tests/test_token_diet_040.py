@@ -41,6 +41,32 @@ CHANGED_REFS_040 = ('moved unchanged in 0.3.0. Open a section', 'skill folder.',
                     'In any shell (PowerShell included)', 'grep lines below;', 'With grep or rg:', '```',
                     'X="--exclude-dir', 'grep -rn', 'In order: one-off values', 'node-ID pattern also matches')
 
+# 0.3.2 reference lines changed on purpose in 0.4.1: the company attribution standard (eleven labelled fields, the
+# Lead Attribution table) and the agency badge, from convert-to-wordpress 0.12.0 (tests/test_attribution_041.py).
+CHANGED_REFS_041 = ("`?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST` shows",
+                    '(and in the portal, if any); tracking', 'and logo; a plain-text part too. Redirect',
+                    '- **Where the lead came from (form attribution),**', 'Lead source table and event as', 'from):',
+                    'the same way. Each: the campaign tags', 'click ids (gclid, gbraid, wbraid, fbclid, msclkid), its',
+                    '("YYYY-MM-DD HH:MM" UTC). Addresses', 'visitor sends a form; nothing goes',
+                    '`utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, `gclid`',
+                    '`msclkid`, `landing_page`', '`first_campaign`, `first_term`', '`first_fbclid`, `first_msclkid`',
+                    'action): only those names', '`first_referrer`; 16', 'only; anything else dropped.',
+                    "- **The lead email's Lead source table,**", 'rows as lines), every value escaped:',
+                    '- Title row "Lead source"', 'text, whichever has the higher contrast; no brand',
+                    'label column, 1px #dddddd', '- Rows: "First visit"', 'from" (the page the form',
+                    'No page-script data: "Not recorded', 'from".', '- Each visit starts with its source',
+                    'gbraid, wbraid), "Facebook', 'referrer "Google search"', '(typed in, bookmark or no source)". Then',
+                    'wbraid, fbclid, msclkid, From,',
+                    'opened with `?utm_source=qa&utm_medium=test&utm_campaign=launch&gclid=TEST`:',
+                    'them in the Lead source table; a lead from a plain visit',
+                    'that belongs in a field; every section has its el and state lines.',
+                    '(local mail capture) with the right layout, recipients and reply-to; spam',
+                    "a page with UTMs and a click id shows them in the email's Lead source",
+                    'portal), a plain post shows "Direct (typed', 'dropped, and `/thank-you` pushes one',
+                    "Form attribution: the kit's rule as it is", "later): built into the kit's theme on every Contact",
+                    "campaign visit in hidden fields, and the lead email's Lead source table",
+                    "from the design's brand colour). The hidden fields")
+
 
 def read(*parts):
     with open(os.path.join(SKILL_DIR, *parts), encoding='utf-8') as fh:
@@ -153,7 +179,7 @@ class TokenDiet(unittest.TestCase):
             lines = {line.strip() for line in now.splitlines()}
             for line in prev.splitlines():
                 t = line.strip()
-                if t and t not in lines and not any(t.startswith(c) for c in CHANGED_REFS_040):
+                if t and t not in lines and not any(t.startswith(c) for c in CHANGED_REFS_040 + CHANGED_REFS_041):
                     self.assertIn(t, have, f'lost from 0.3.2 {r}: {t}')
 
 

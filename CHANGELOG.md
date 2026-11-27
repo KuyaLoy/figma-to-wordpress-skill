@@ -5,6 +5,35 @@ follows [Keep a Changelog](https://keepachangelog.com).
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-27
+
+The company attribution standard and the agency badge from convert-to-wordpress 0.12.0, for both targets.
+
+### Added
+
+- SKILL.md > Every site, whatever the design shows: the footer and both emails (lead email and auto-reply) carry
+  the agency badge with its link, dynamic, hidden only on the client's recorded request; every lead email has the
+  eleven labelled attribution fields. Rules 1 to 13, the phase table and "Done means" unchanged.
+- WordPress (`references/wordpress.md`): pointers, nothing copied, to the kit's `references/build.md` > Agency
+  badge (phase 2: the footer's bottom bar, even when Figma has none; a known diff in the footer's pixel check),
+  `references/forms-email.md` > Where the lead came from (the eleven fields in the Lead Attribution table, CFDB7
+  and the app the profile's connector plugin feeds), > Form layout and > The auto-reply and the agency badge (its
+  self-check class `branding` and `live-qa.py` check 11).
+- Next.js (`references/nextjs.md`): the footer badge from `agencyBadge` in `src/content/site.ts` (image, link,
+  alt; `hide` only with the client's recorded request); the lead email and the auto-reply in one branded template,
+  both ending with the badge (PNG at 2x); no CRM or app connection for Next.js builds yet.
+- `tests/test_attribution_041.py`.
+
+### Changed
+
+- Next.js form attribution follows the company standard: the eleven labels in order, `utm_id`, `gad_campaignid`
+  and their first-visit fields, landing pages with their query (no value holding an "@"), the new caps, the two
+  dates in the site's time zone, and the lead email's Lead Attribution table (was the 0.9.10 Lead source table).
+- The phase proof (`references/phase-steps.md`), the QA checklists (`references/qa.md`) and live QA
+  (`references/live.md`): a post from `?gad_campaignid=123&gclid=TEST&utm_source=google` shows the eleven rows in
+  order, a plain post "Direct" and "none" rows, and the badge in the footer and both emails.
+- `tests/test_token_diet_040.py`: the 0.3.2 lines changed on purpose in 0.4.1 are listed.
+
 ## [0.4.0] - 2026-11-27
 
 Fewer tokens per build, with every rule, phase, test and QA step kept, as in convert-to-wordpress 0.11.0. Rules 1

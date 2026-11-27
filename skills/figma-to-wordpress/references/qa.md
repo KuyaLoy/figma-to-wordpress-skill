@@ -153,14 +153,18 @@ SKILL.md rule 13 in commands. Run in the theme (WordPress) or the app (Next.js);
 - **Pages:** the check is clean at 1440 and 375 (boxes, pixels, elements, states); between widths nothing breaks;
   the long content test pages hold; menus and mobile menu work by mouse, touch and keyboard; sliders drag; video
   plays as designed; every page editable in ACF and the edit shows on the page (WordPress); no hard-coded content
-  that belongs in a field; every section has its el and state lines.
+  that belongs in a field; every section has its el and state lines; the footer carries the agency badge with its
+  image and link on every page (WordPress: the kit's self-check, class `branding`).
 - **Code (every phase):** section 7 is clean; values come from tokens; a shared map (colours, variants) exists once;
   sections reuse parts instead of copying them; comments say why, with no Figma node IDs or ticket tags.
 - **Forms and email:** every form submits locally, validation and error states, thank-you redirect, the email arrives
-  (local mail capture) with the right layout, recipients and reply-to; spam protection on; form attribution: a post from
-  a page with UTMs and a click id shows them in the email's Lead source table and the portal payload (when there is a
-  portal), a plain post shows "Direct (typed in, bookmark or no source)", a tampered or oversized value is cut or
-  dropped, and `/thank-you` pushes one `generate_lead`.
+  (local mail capture) with the right layout, recipients and reply-to; the lead email and the auto-reply in one
+  branded template, each ending with the linked agency badge; a form Figma lacks in the kit's default layout
+  (WordPress: the kit's `form-layout.mjs`); spam protection on; form attribution: a post from a page opened with
+  `?gad_campaignid=123&gclid=TEST&utm_source=google` shows the eleven Lead Attribution rows in order with values
+  (Lead Source "Google Ads", Campaign ID 123, Click ID TEST) in the email, CFDB7 (WordPress) and the portal payload
+  (when there is a portal), a plain post shows Lead Source "Direct" and "none" rows, a tampered or oversized value
+  is cut or dropped, and `/thank-you` pushes one `generate_lead`.
 - **SEO, security, speed:** one H1 and heading order, titles and descriptions, canonicals, Open Graph, sitemap,
   robots, schema valid, thank-you noindex, 404 real; no secrets in code; headers and hardening; LCP image preloaded,
   images sized, fonts swap, little JS; local Lighthouse as a regression guard only.

@@ -137,6 +137,12 @@ Steps 3 to 5 in full (what to ask, what the inventory and the plan hold): open `
 6. **Gate: the plan.** Show the plan in 3 lines plus the progress link and wait for the developer's OK (in a
    Command Center project: the lead's go typed in this chat, quoted in notes.md). Nothing is built before it.
 
+## Every site, whatever the design shows
+
+The footer and both emails (the lead email and the auto-reply) carry the agency badge with its link, dynamic,
+hidden only on the client's recorded request; every lead email has the eleven labelled attribution fields. WordPress:
+`references/wordpress.md` (convert-to-wordpress 0.12.0 or later); Next.js: `references/nextjs.md`.
+
 ## The phases
 
 One phase at a time, in this order. Each phase ends with QA that only collects findings (below).

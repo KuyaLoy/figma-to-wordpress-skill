@@ -79,11 +79,14 @@ logged (`progress.py status`).
 - **2 Pages:** every section `built` after `check.mjs` exit 0 at 1440 and 375 (box, pixel, el, state rows); the
   sweep 320 to 1920 and the long content pages without overflow or clipped text (check.mjs); WordPress: a field
   edit shows on its page (wp-cli or wp-admin, then curl); Next.js: every route reads its `src/content/` file
-  (grep); thank-you 200 noindex, 404 page 404 (curl -I).
+  (grep); thank-you 200 noindex, 404 page 404 (curl -I); the footer's agency badge with its image and link on
+  every page (WordPress: cwp's self-check, class `branding`; Next.js: curl and grep).
 - **3 Forms and email:** WordPress: cwp's P3 items; Next.js: every form answers with the thank-you redirect (curl),
   the email in the local mail capture, honeypot and the task's spam protection (the markup); both: a post from a
-  page with UTMs and a click id shows them in the Lead source table (mail capture), `/thank-you` pushes one
-  `generate_lead` (the browser's dataLayer); a leads portal sender only when the profile names one (the code).
+  page opened with `?gad_campaignid=123&gclid=TEST&utm_source=google` shows the eleven Lead Attribution rows in
+  order with values, a plain post Lead Source "Direct" and "none" rows, and the lead email and the auto-reply each
+  end with the linked agency badge (mail capture); `/thank-you` pushes one `generate_lead` (the browser's
+  dataLayer); a leads portal sender only when the profile names one (the code).
 - **4 SEO, security, speed:** title, description, canonical, one H1, alt and `lang` with 0 failing rows, the LCP
   image not lazy (check.mjs page rows); sitemap and robots 200, `/thank-you` noindex, private files 403 or outside
   `public/`, security headers (curl -I); each `application/ld+json` block parses (JSON.parse); local Lighthouse
@@ -93,7 +96,8 @@ logged (`progress.py status`).
   **Go-live:** the developer's go (quoted in notes.md, `progress.py log`).
 - **Live:** WordPress: cwp's P6 Launch and P6 Live QA items (`plugin-check.py --env live`, `live-qa.py`, track.mjs,
   PageSpeed Insights, the test leads), then Duplicator deleted (`plugin-check.py --done`); Next.js: the live address
-  200 (curl -I), `check.mjs --base <live url>` exit 0, one test lead per form (the developer's confirmation),
+  200 (curl -I), `check.mjs --base <live url>` exit 0, one test lead per form (the developer's confirmation:
+  the eleven rows, and the agency badge in both emails), the footer badge and its link (curl and grep),
   `generate_lead` fires (the browser's dataLayer), PageSpeed Insights mobile and desktop (scores as measured); both:
   `_figma/`, private files and the long content pages not reachable (curl -I), `_figma/report.md` with DONE first,
   the progress page republished (its URL).
